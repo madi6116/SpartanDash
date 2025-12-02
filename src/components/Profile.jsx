@@ -63,13 +63,13 @@ const SettingsView = ({ navigateToProfile, navigateToLogin, currentUserEmail }) 
         </div>
 
         <div style={styles.settingsFooter}>
-          {/* FIX 3B: Visible Back to Profile Button */}
-          <button onClick={navigateToProfile} style={styles.backButton}>
-            <span style={styles.backArrow}>←</span> back to profile
-          </button>
-          <button onClick={navigateToLogin} style={styles.signOutButton}>
-            sign out
-          </button>
+        {/* FIX A: Wrap the entire footer in a full-width container for blue bar style */}
+        <div style={styles.finalFooterWrapper}>
+            <button onClick={navigateToProfile} style={styles.finalHomeButton}>
+                <span style={styles.finalButtonArrow}>←</span> Back to Profile
+            </button>
+        </div>
+        
         </div>
       </div>
     </div>
@@ -296,7 +296,7 @@ const styles = {
     settingsContainer: {
         padding: '20px',
         backgroundColor: 'white',
-        maxWidth: '400px',
+        minWidth: '360px',
         margin: 'auto',
         borderRadius: '15px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
@@ -339,10 +339,12 @@ const styles = {
         fontWeight: 'bold',
     },
     settingsFooter: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        marginTop: '30px',
-    },
+        display: 'flex',
+        justifyContent: 'space-between',
+        flexDirection: 'column', // Stack the full-width button and the sign-out link
+        alignItems: 'center',
+        marginTop: '30px',
+    },
     backButton: {
         background: 'none',
         border: 'none',
