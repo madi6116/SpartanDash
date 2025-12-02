@@ -95,7 +95,12 @@ const Profile = ({ navigateToHome, navigateToLogin, setScreen, setCart, favorite
 
         {/* Feature Grid: Wallet, Favorites, Orders */}
         <div style={styles.featureGrid}>
-          <button style={styles.walletButton}>💳 Wallet</button>
+          <button 
+              onClick={() => setScreen("payment")} // ADD THE NAVIGATION HERE
+              style={styles.walletButton}
+          >
+              💳 Wallet
+          </button>
 
           {/* FAVORITES Button: Sets mode to 'favorites' */}
           <button 
