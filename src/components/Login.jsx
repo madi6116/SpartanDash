@@ -4,15 +4,24 @@ import dashLogo from "../assets/Logo.png";
 export default function Login({ setScreen }) {   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [studentId, setStudentId] = useState('');
+
+  //Login or signup mode
+  const [isLogin, setIsLogin] = useState(true);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    alert(`Email: ${email}\nPassword: ${password}`);
-
-  
+    if(isLogin){
+      //Login flow
+      alert(`Email: ${email}\nPassword: ${password}`);
+    }else{
+      alert(`Sign Up  Email: ${email}\nPassword: ${password}\nStudent ID: ${studentId}`);
+    }
+      
     setScreen("home");
   };
+
+    // console.log("Auth form mode:", isLogin ? "Login" : "SignUp");
 
   return (
     //Page container , center card
@@ -31,14 +40,22 @@ export default function Login({ setScreen }) {
     <div style={styles.card}>
 
       <div style={styles.toggleRow}>
-        <button style={styles.toggleActive}>Login</button>
+        <button 
+        style={isLogin ? styles.toggleActive : styles.toggleInactive}
+        onClick={() => setIsLogin(true)}
+        >
+          Login
+        </button>
         <button
-          style={styles.toggleInactive}
-          onClick={() => setScreen("signup")}
+          style={!isLogin ? styles.toggleActive : styles.toggleInactive}
+      
+          onClick={() => setIsLogin(false)}
         >
           Sign Up
         </button>
       </div>
+
+      {isLogin ? ( 
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <label style={styles.label}>Email</label>
@@ -68,8 +85,45 @@ export default function Login({ setScreen }) {
 
             <div style={styles.forgot}>Forgot password?</div>
             
-    
         </form>
+      ) : (
+        //Sign up form 
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <label style={styles.label}>Email</label>
+          <input
+            type='email'
+            placeholder='Enter your email'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={styles.input}
+            />
+
+            <label style={styles.label}>Password</label>
+           <input
+            type='password'
+            placeholder='Enter your password'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={styles.input}
+            />
+
+          <label style={styles.label}>Student ID</label>
+          <input  
+          type="text"
+          placeholder="Enter your student ID"
+          value={studentId}
+          onChange={(e) => setStudentId(e.target.value)}
+          required
+          style={styles.input}
+        />
+             {/*Submitt button*/}
+            <button type="submit" style={styles.loginButton}>
+              Create Account
+            </button>
+        </form>
+      )}
       </div>
     </div>
     
