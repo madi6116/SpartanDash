@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import dashLogo from "../assets/Logo.png";
 
 export default function Login({ setScreen }) {   
   const [email, setEmail] = useState('');
@@ -14,61 +15,201 @@ export default function Login({ setScreen }) {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      width: '100vw',
-      padding: '20px',
-      backgroundColor: '#030182'  //Background color
-    }}>
-      <form onSubmit={handleSubmit} style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
-        padding: '24px',
-        border: '1px solid #ccc',
-        borderRadius: '8px',
-        minWidth: '260px',
-        backgroundColor: 'white',
-        boxShadow: '0 4px 10px rgba(0,0,0,0.15)'
-        
-      }}>
-        <h2 style={{ textAlign: 'center' }}>Login</h2>
+    //Page container , center card
+    <div style={styles.page}>
+      <div style={styles.blueContainer}>
+      <div style={styles.topText}>Login / Sign Up</div>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={{ padding: '8px', fontSize: '14px' }}
-        />
+      <div style={styles.headerSection}>
+      <img src={dashLogo} alt="Logo" style={styles.logo} />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{ padding: '8px', fontSize: '14px' }}
-        />
+      <div style={styles.appTitle}>Spartan Dash</div>
+      <div style={styles.subtitle}>By Students For Students</div>
 
+    </div>
+
+    <div style={styles.card}>
+
+      <div style={styles.toggleRow}>
+        <button style={styles.toggleActive}>Login</button>
         <button
-          type="submit"
-          style={{
-            padding: '10px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
+          style={styles.toggleInactive}
+          onClick={() => setScreen("signup")}
         >
-          Login
+          Sign Up
         </button>
-      </form>
+      </div>
+
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <label style={styles.label}>Email</label>
+          <input
+            type='email'
+            placeholder='Enter your email'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={styles.input}
+            />
+          <label style={styles.label}>Password</label>
+
+            <input
+            type='password'
+            placeholder='Enter your password'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={styles.input}
+            />
+
+            {/*Submitt button*/}
+            <button type="submit" style={styles.loginButton}>
+              Login
+            </button>
+
+            <div style={styles.forgot}>Forgot password?</div>
+            
+    
+        </form>
+      </div>
+    </div>
+    
     </div>
   );
 }
+
+const styles = {
+  //Full screen flex container to center the card
+  page: {
+    width: "100vw",
+    height: "100vh",
+    background: "white",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: 20,
+    fontFamily: "Arial",
+  },
+
+  blueContainer: {
+    width: "90%",
+    maxWidth: 420,
+    background: "linear-gradient(#030182, #0866ff)",
+    padding: 25,
+    borderRadius: 25,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+    marginTop: 40,
+  },
+
+  topText: {
+    color: "white",
+    fontSize: 14,
+    marginBottom: 20,
+  },
+
+  headerSection: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    marginBottom: 30
+  },
+
+
+  logo: {
+    width: 85,
+    height: 85,
+    borderRadius: 8,
+    marginBottom:10,
+  },
+
+  appTitle: {
+    color: "white",
+    fontSize: 20,
+    fontWeight: "600",
+  },
+
+  subtitle: {
+    color: "#d6d6d6",
+    fontSize: 14,
+    marginTop: 4,
+  },
+
+  card: {
+    width: "90%",
+    maxWidth: 380,
+    background: "white",
+    padding: 20,
+    borderRadius: 20,
+    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+  },
+
+  toggleRow: {
+    display: "flex",
+    gap: 10,
+    marginBottom: 15,
+  },
+
+  toggleActive: {
+    flex: 1,
+    padding: 10,
+    background: "#030182",
+    color: "white",
+    borderRadius: 10,
+    border: "none",
+  },
+
+  toggleInactive: {
+    flex: 1,
+    padding: 10,
+    background: "white",
+    borderRadius: 10,
+    border: "1px solid #ccc",
+    color: "#030182",
+    cursor: "pointer",
+  },
+
+  //form style
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 12,
+  },
+
+  label: {
+     fontSize: 14,
+    fontWeight: "500",
+    marginTop: 5,
+  },
+
+  //Input field
+  input: {
+    padding: 12,
+    fontSize: 14,
+    borderRadius: 10,
+    border: "1px solid #eee",
+    background: "#f5f5f5",
+  },
+
+  //Submit button
+  loginButton: {
+    padding: 12,
+    background: "#030182",
+    color: "white",
+    border: "none",
+    borderRadius: 10,
+    fontSize: 16,
+    marginTop: 10,
+    cursor: "pointer",
+  },
+
+  forgot: {
+    marginTop: 15,
+    textAlign: "center",
+    color: "#777",
+    fontSize: 14,
+    cursor: "pointer",
+  },
+
+};
