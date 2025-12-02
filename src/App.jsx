@@ -14,14 +14,20 @@ const INITIAL_USERS = {
 const INITIAL_FAVORITES = [1009, 1007, 1004, 1001];
 
 function App() {
+  const [currentUserEmail, setCurrentUserEmail] = useState('test@sjsu.edu');
   const [screen, setScreen] = useState("login");
   const [cart, setCart] = useState([]);  
   const [favoriteOrders, setFavoriteOrders] = useState(INITIAL_FAVORITES);
   const [registeredUsers, setRegisteredUsers] = useState(INITIAL_USERS);
   const [orderViewMode, setOrderViewMode] = useState('all');
+  const [returnScreen, setReturnScreen] = useState('home');
   const handleLogout = () => {
     setCart([]);
     setScreen("login");
+  };
+
+  const navigateToPayment = (returnScreen) => {
+    setScreen("payment");
   };
 
   return (
@@ -35,7 +41,11 @@ function App() {
       )}
       {screen === "home" && <HomePage setScreen={setScreen} cart={cart} />}
       {screen === "cart" && <Cart setScreen={setScreen} cart={cart} setCart={setCart} />}
-      {screen === "payment" && <Payment setScreen={setScreen} cart={cart} />}
+      {screen === "payment" && (
+        <Payment 
+          setScreen={setScreen} 
+          cart={cart}
+          returnScreen={returnScreen} />)}
       
       {screen === "profile" && (
         <Profile 
@@ -47,6 +57,7 @@ function App() {
           favoriteOrders={favoriteOrders}
           setFavoriteOrders={setFavoriteOrders}
           setOrderViewMode={setOrderViewMode}
+          currentUserEmail={currentUserEmail}
         />
       )}
       

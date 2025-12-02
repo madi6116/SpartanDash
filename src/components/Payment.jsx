@@ -25,7 +25,7 @@ const PageWrapper = ({ children }) => (
   </div>
 );
 
-export default function Payment({ setScreen }) {
+export default function Payment({ setScreen, returnScreen }) {
   const [cards, setCards] = useState([
     { last4: "4532", name: "John Doe", exp: "12/25", default: true },
     { last4: "8765", name: "John Doe", exp: "08/26", default: false }
@@ -44,9 +44,9 @@ export default function Payment({ setScreen }) {
   return (
     <PageWrapper>
       {/* Header */}
-      <div style={{ background: "#030182", padding: 16 }}>
+      <div style={{ background: "#030182", padding: 16, position: "relative" }}>
         <button
-          onClick={() => setScreen("cart")}
+          onClick={() => setScreen("profile")}
           style={{
             background: "transparent",
             color: "white",
