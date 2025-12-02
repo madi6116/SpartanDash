@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import Login from "./components/Login";
-import HomePage from "./components/HomePage";
+import HomePage from "./components/Homepage";
 import Cart from "./components/Cart";
 import Payment from "./components/Payment";
 import Profile from "./components/Profile"; 
 import PastOrders from "./components/PastOrders"; 
+import MenuPage from "./components/Menupage";
 
 // ADD INITIAL_USERS outside the App function
 const INITIAL_USERS = {
@@ -21,6 +22,10 @@ function App() {
   const [registeredUsers, setRegisteredUsers] = useState(INITIAL_USERS);
   const [orderViewMode, setOrderViewMode] = useState('all');
   const [returnScreen, setReturnScreen] = useState('home');
+  
+  // Track which restaurant is currently selected
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState(null);
+
   const handleLogout = () => {
     setCart([]);
     setScreen("login");
@@ -39,7 +44,7 @@ function App() {
           setRegisteredUsers={setRegisteredUsers} // PASS THE SETTER FUNCTION
         />
       )}
-      {screen === "home" && <HomePage setScreen={setScreen} cart={cart} />}
+      {screen === "home" && <HomePage setScreen={setScreen} cart={cart} setSelectedRestaurantId={setSelectedRestaurantId}/>}
       {screen === "cart" && <Cart setScreen={setScreen} cart={cart} setCart={setCart} />}
       {screen === "payment" && (
         <Payment 
@@ -72,7 +77,14 @@ function App() {
           orderViewMode={orderViewMode}
         />
       )}
-    </>
+      {screen === "menu" && (
+        <MenuPage 
+        setScreen={setScreen}
+        restaurantId ={selectedRestaurantId}
+        setCart = {setCart} 
+        />
+      )}
+    </> 
   );
 }
 

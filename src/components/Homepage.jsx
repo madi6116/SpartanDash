@@ -28,11 +28,12 @@ const PageWrapper = ({ children }) => (
   </div>
 );
 
-export default function HomePage({ setScreen, cart }) {
+export default function HomePage({ setScreen, cart , setSelectedRestaurantId}) {
   const [search, setSearch] = useState("");
 
   const restaurants = [
     {
+      id: "pizzamyheart",
       name: "Pizza My Heart",
       address: "1 Washington Square, San Jose, CA",
       cuisine: "Pizza, Italian",
@@ -43,6 +44,7 @@ export default function HomePage({ setScreen, cart }) {
       id: "pizzamyheart"
     },
     {
+      id: "lavictoria",
       name: "La Victoria Taqueria",
       address: "140 E San Carlos St, San Jose, CA",
       cuisine: "Mexican, Burritos",
@@ -53,6 +55,11 @@ export default function HomePage({ setScreen, cart }) {
       id: "lavictoria"
     }
   ];
+
+  const handleRestaurantClick = (restaurant) => {
+    setSelectedRestaurantId(restaurant.id);
+    setScreen(menu)
+  }
 
   const filtered = restaurants.filter((r) =>
     r.name.toLowerCase().includes(search.toLowerCase())
@@ -105,9 +112,12 @@ export default function HomePage({ setScreen, cart }) {
       <div style={{ paddingBottom: 80, paddingTop: 16 }}>
         {filtered.map((r, i) => (
           <div
-            key={i}
+            key={r.id || i}
             style={styles.card}
-            onClick={() => setScreen("menu")}
+            onClick={() =>{
+              setSelectedRestaurantId(r.id);
+              setScreen("menu")
+            }}
           >
             <img src={r.img} alt="" style={styles.cardImg} />
 
