@@ -1,127 +1,180 @@
 import React, { useState } from "react";
 import pizzaLogo from "../assets/pizzamyheart.png";
+import laVictoriaImg from "../assets/La-Victoria.png";
 
+const PageWrapper = ({ children }) => (
+  <div style={{
+    width: "100vw",
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    background: "#F5F5F5",
+    padding: 20,
+    overflowY: "auto"
+  }}>
+    <div style={{
+      width: "100%",
+      maxWidth: 430,
+      background: "white",
+      borderRadius: 16,
+      overflow: "hidden",
+      minHeight: "90vh",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+    }}>
+      {children}
+    </div>
+  </div>
+);
 
-export default function HomePage({ setScreen }) {
+export default function HomePage({ setScreen, cart }) {
   const [search, setSearch] = useState("");
 
-  const restaurant = {
-    name: "Pizza My Heart",
-    address: "1 Washington Square, San Jose, CA",
-    cuisine: "Pizza, Italian",
-    rating: 4.8,
-    time: "15-25 min",
-    minOrder: "$10 min order",
-    img: pizzaLogo
-  };
+  const restaurants = [
+    {
+      name: "Pizza My Heart",
+      address: "1 Washington Square, San Jose, CA",
+      cuisine: "Pizza, Italian",
+      rating: 4.8,
+      time: "15–25 min",
+      minOrder: "$10 min order",
+      img: pizzaLogo,
+      id: "pizzamyheart"
+    },
+    {
+      name: "La Victoria Taqueria",
+      address: "140 E San Carlos St, San Jose, CA",
+      cuisine: "Mexican, Burritos",
+      rating: 4.7,
+      time: "10–20 min",
+      minOrder: "$10 min order",
+      img: laVictoriaImg,
+      id: "lavictoria"
+    }
+  ];
 
-  const showRestaurant = restaurant.name
-    .toLowerCase()
-    .includes(search.toLowerCase());
+  const filtered = restaurants.filter((r) =>
+    r.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div style={styles.fullScreenCenter}>
-      {/* This is the centered card */}
-      <div style={styles.pageCard}>
+    <PageWrapper>
+      {/* HEADER */}
+      <div style={styles.header}>
+        <button
+          onClick={() => setScreen("login")}
+          style={styles.logoutBtn}
+        >
+          Logout
+        </button>
 
-        {/* HEADER */}
-        <div style={styles.header}>
-          <h2 style={styles.headerText}>Home Page</h2>
+        <h2 style={styles.headerText}>Home Page</h2>
+        <button
+          onClick={() => setScreen("profile")}
+          style={styles.profileBtn}
+        >
+          👤
+        </button>
+      </div>
+
+      {/* TOP SECTION */}
+      <div style={styles.topSection}>
+        <div style={{ color: "white", opacity: 0.8 }}>Deliver to</div>
+        <div style={{ color: "white", fontSize: 18, fontWeight: 600 }}>
+          1 Washington Square, San Jose, CA
         </div>
 
-        {/* DELIVERY + SEARCH */}
-        <div style={styles.topSection}>
-          <div style={{ color: "white", opacity: 0.8 }}>Deliver to</div>
-          <div style={{ color: "white", fontSize: 18, fontWeight: 600 }}>
-            {restaurant.address}
-          </div>
-
-          <div style={styles.searchWrapper}>
-            <span style={styles.searchIcon}>🔍</span>
-            <input
-              style={styles.searchInput}
-              placeholder="Search restaurants…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+        <div style={styles.searchWrapper}>
+          <span style={styles.searchIcon}>🔍</span>
+          <input
+            style={styles.searchInput}
+            placeholder="Search restaurants…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
+      </div>
 
-        {/* RESTAURANT CARD */}
-        {showRestaurant && (
+      {/* RESTAURANTS */}
+      <div style={{ paddingBottom: 80, paddingTop: 16 }}>
+        {filtered.map((r, i) => (
           <div
+            key={i}
             style={styles.card}
             onClick={() => setScreen("menu")}
           >
-            <img src={restaurant.img} alt="" style={styles.cardImg} />
+            <img src={r.img} alt="" style={styles.cardImg} />
 
             <div style={styles.cardInfo}>
               <div style={styles.cardTitleRow}>
                 <strong style={{ color: "#030182", fontSize: 18 }}>
-                  {restaurant.name}
+                  {r.name}
                 </strong>
-                <span style={{ fontSize: 16 }}>⭐ {restaurant.rating}</span>
+                <span style={{ fontSize: 16 }}>⭐ {r.rating}</span>
               </div>
 
-              <div style={styles.cuisine}>{restaurant.cuisine}</div>
+              <div style={styles.cuisine}>{r.cuisine}</div>
 
               <div style={styles.meta}>
-                <span>{restaurant.time}</span>
-                <span>{restaurant.minOrder}</span>
+                <span>{r.time}</span>
+                <span>{r.minOrder}</span>
               </div>
             </div>
           </div>
-        )}
-
-        {/* CART BUTTON */}
-        <div
-          style={styles.cartButton}
-          onClick={() => setScreen("cart")}
-        >
-          🛒 Cart
-        </div>
-
+        ))}
       </div>
-    </div>
+
+      {/* CART */}
+      <div
+        style={styles.cartButton}
+        onClick={() => setScreen("cart")}
+      >
+        🛒 {cart?.length || 0}
+      </div>
+    </PageWrapper>
   );
 }
 
-/* ------------------ BULLETPROOF CENTERING STYLES ------------------ */
+// Styles
+
 const styles = {
-  fullScreenCenter: {
-    width: "100vw",
-    height: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "#F5F5F5",
-    overflow: "auto", // ensures content scrolls on small screens
-    padding: 20,
-  },
-
-  pageCard: {
-    width: "100%",
-    maxWidth: 600,      // keeps it nicely centered
-    background: "white",
-    borderRadius: 16,
-    overflow: "hidden",
-    minHeight: "80vh",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
-  },
-
   header: {
-    width: "100%",
-    background: "#030182",
-    padding: "16px 0",
-    textAlign: "center"
-  },
+  width: "100%",
+  background: "#030182",
+  padding: "16px 8px",        
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  position: "relative"
+}, 
 
   headerText: {
     margin: 0,
     color: "white",
-    fontSize: 22,
-    fontWeight: 600
+    fontSize: 20,
+    fontWeight: 600,
   },
+logoutBtn: {
+  background: "transparent",
+  border: "1px solid white",
+  padding: "4px 8px",
+  borderRadius: 8,
+  color: "white",
+  cursor: "pointer",
+  fontSize: 12,
+  zIndex: 2                     
+},
+
+profileBtn: {
+  background: "white",
+  border: "none",
+  borderRadius: "50%",
+  fontSize: 18,
+  padding: "6px 9px",
+  cursor: "pointer",
+  marginRight: 15,               
+  zIndex: 2
+},
 
   topSection: {
     width: "100%",
@@ -129,7 +182,6 @@ const styles = {
     padding: 16,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    marginBottom: 20,
   },
 
   searchWrapper: {
@@ -145,13 +197,15 @@ const styles = {
   },
 
   searchInput: {
-    width: "100%",
+    width: "80%",
     height: 42,
     padding: "8px 12px 8px 40px",
     borderRadius: 10,
     border: "none",
     fontSize: 16,
     outline: "none",
+    background: "white",
+    color: "black"  
   },
 
   card: {
@@ -159,8 +213,8 @@ const styles = {
     margin: "0 auto 24px auto",
     background: "white",
     borderRadius: 16,
-    boxShadow: "0px 2px 6px rgba(0,0,0,0.15)",
     cursor: "pointer",
+    boxShadow: "0px 2px 6px rgba(0,0,0,0.15)",
   },
 
   cardImg: {
@@ -200,10 +254,10 @@ const styles = {
     background: "#D1AD38",
     padding: "12px 18px",
     borderRadius: 50,
+    cursor: "pointer",
+    boxShadow: "0px 3px 8px rgba(0,0,0,0.25)",
+    color: "#030182",
     fontWeight: 700,
     fontSize: 18,
-    cursor: "pointer",
-    color: "#030182",
-    boxShadow: "0px 3px 8px rgba(0,0,0,0.25)",
-  }
+  },
 };
