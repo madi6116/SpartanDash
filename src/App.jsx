@@ -11,12 +11,14 @@ const INITIAL_USERS = {
     'test@sjsu.edu': 'password123',
 };
 
+const INITIAL_FAVORITES = [1009, 1007, 1004, 1001];
+
 function App() {
   const [screen, setScreen] = useState("login");
   const [cart, setCart] = useState([]);  
-
+  const [favoriteOrders, setFavoriteOrders] = useState(INITIAL_FAVORITES);
   const [registeredUsers, setRegisteredUsers] = useState(INITIAL_USERS);
-
+  const [orderViewMode, setOrderViewMode] = useState('all');
   const handleLogout = () => {
     setCart([]);
     setScreen("login");
@@ -38,7 +40,13 @@ function App() {
       {screen === "profile" && (
         <Profile 
           setScreen={setScreen} 
-          handleLogout={handleLogout} 
+          handleLogout={handleLogout}
+          navigateToHome={() => setScreen("home")}
+          setCart={setCart}
+          // PASS NEW PROPS
+          favoriteOrders={favoriteOrders}
+          setFavoriteOrders={setFavoriteOrders}
+          setOrderViewMode={setOrderViewMode}
         />
       )}
       
@@ -46,6 +54,11 @@ function App() {
         <PastOrders
           navigateToProfile={() => setScreen("profile")}
           setScreen={setScreen}
+          setCart={setCart}
+          // PASS NEW PROPS
+          favoriteOrders={favoriteOrders}
+          setFavoriteOrders={setFavoriteOrders}
+          orderViewMode={orderViewMode}
         />
       )}
     </>

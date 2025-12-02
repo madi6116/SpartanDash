@@ -1,71 +1,63 @@
-// src/components/Profile.jsx
 import React, { useState } from 'react';
 import PastOrders from './PastOrders';
-// Note: You will need to add corresponding CSS for proper styling.
+import profilePic from '../assets/JaneDoe.jpg'; 
 
-// --- Mock Data ---
+// MOCK DATA: Using the local image asset
 const MOCK_USER = {
   name: "Jane Doe",
   status: "Verified Student",
-  image: "/src/assets/PizzaMyHeart.png" // Using an existing image placeholder for the profile pic
+  image: profilePic, 
 };
 
-// --- Settings View Component (Handles US 3.3, US 12/13) ---
+// --- Settings View Component ---
 const SettingsView = ({ navigateToProfile, navigateToLogin }) => {
   
-  // Implementation for US 3.3: Request Account Closure
   const handleAccountClosure = () => {
     if (window.confirm("Are you sure you want to permanently close your account? This action cannot be undone.")) {
       alert('Account closure request processed. You will be logged out.');
-      navigateToLogin(); // Log out after closure request
+      navigateToLogin(); 
     }
   };
 
-  // Implementation for US 12 & 13: Apply to be a Courier
   const handleApplyToCourier = () => {
     alert('Navigating to Courier Application form for ID verification.');
     console.log('US 12.1 and 13.1 logic initiated.');
   };
 
   return (
-    <div className="settings-container" style={{padding: '20px', backgroundColor: 'white'}}>
-      <h2 style={{fontSize: '24px', margin: '0 0 20px 0'}}>Settings</h2>
+    <div style={styles.settingsContainer}> 
+      <h2 style={styles.settingsHeader}>Settings</h2>
       
-      {/* Profile Summary based on image_c2f320.png */}
-      <div className="profile-summary" style={{textAlign: 'center', marginBottom: '30px'}}>
-        <img src={MOCK_USER.image} alt="Profile" style={{width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover'}} />
-        <h3 style={{marginTop: '10px'}}>{MOCK_USER.name}</h3>
-        <p>🛒 {MOCK_USER.status}</p>
+      <div style={styles.profileSummary}>
+        <img src={MOCK_USER.image} alt="Profile" style={styles.profilePicLg} />
+        <h3 style={styles.userName}>{MOCK_USER.name}</h3>
+        <p style={styles.userStatus}>🛒 {MOCK_USER.status}</p>
       </div>
 
-      <div className="settings-list" style={{borderTop: '1px solid #ccc'}}>
+      <div style={styles.settingsList}>
         
-        {/* Account Security (Part of US 3) */}
-        <div onClick={() => console.log('Go to Security')} style={{padding: '15px 0', borderBottom: '1px solid #eee', cursor: 'pointer'}}>
-          <span role="img" aria-label="Key" style={{marginRight: '10px'}}>🔑</span> Account Security
+        <div onClick={() => console.log('Go to Security')} style={styles.listItem}>
+          <span role="img" aria-label="Key" style={styles.itemIcon}>🔑</span> Account Security
         </div>
         
-        {/* Personal Info. (US 3.2) */}
-        <div onClick={() => console.log('Go to Personal Info Edit')} style={{padding: '15px 0', borderBottom: '1px solid #eee', cursor: 'pointer'}}>
-          <span role="img" aria-label="Person" style={{marginRight: '10px'}}>👤</span> Personal Info.
+        <div onClick={() => console.log('Go to Personal Info Edit')} style={styles.listItem}>
+          <span role="img" aria-label="Person" style={styles.itemIcon}>👤</span> Personal Info.
         </div>
         
-        {/* Apply to Be a Courier (US 12 & 13) */}
-        <div onClick={handleApplyToCourier} style={{padding: '15px 0', borderBottom: '1px solid #eee', cursor: 'pointer'}}>
-          <span role="img" aria-label="Box" style={{marginRight: '10px'}}>📦</span> Apply to Be a Courier
+        <div onClick={handleApplyToCourier} style={styles.listItem}>
+          <span role="img" aria-label="Box" style={styles.itemIcon}>📦</span> Apply to Be a Courier
         </div>
         
-        {/* Delete Account (US 3.3) */}
-        <div onClick={handleAccountClosure} style={{padding: '15px 0', color: 'red', fontWeight: 'bold', cursor: 'pointer'}}>
-          <span role="img" aria-label="X" style={{marginRight: '10px'}}>❌</span> Delete Account
+        <div onClick={handleAccountClosure} style={styles.deleteButton}>
+          <span role="img" aria-label="X" style={styles.itemIcon}>❌</span> Delete Account
         </div>
       </div>
 
-      <div className="settings-footer" style={{display: 'flex', justifyContent: 'space-between', marginTop: '30px'}}>
-        <button onClick={navigateToProfile} style={{background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px'}}>
-          ⬅️ back to profile
+      <div style={styles.settingsFooter}>
+        <button onClick={navigateToProfile} style={styles.backButton}>
+          <span style={styles.backArrow}>←</span> back to profile
         </button>
-        <button onClick={navigateToLogin} style={{background: 'none', border: 'none', color: 'red', cursor: 'pointer', fontSize: '16px'}}>
+        <button onClick={navigateToLogin} style={styles.signOutButton}>
           sign out
         </button>
       </div>
@@ -73,79 +65,281 @@ const SettingsView = ({ navigateToProfile, navigateToLogin }) => {
   );
 };
 
-// --- Main Profile Page Component (US 3, 11) ---
-const Profile = ({ navigateToHome, navigateToLogin, setScreen }) => {
+// --- Main Profile Page Component ---
+const Profile = ({ navigateToHome, navigateToLogin, setScreen, setCart, favoriteOrders, setFavoriteOrders, setOrderViewMode }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isPastOrdersOpen, setIsPastOrdersOpen] = useState(false);
   
-  // Past Orders Mock Logic (US 11)
   const handleViewOrders = () => {
-    setIsPastOrdersOpen(true);
-    console.log('Navigating to Past Orders/History');
+    setScreen("pastOrders"); 
   };
 
-  // If the user clicks on Settings, render the Settings View
   if (isSettingsOpen) {
     return <SettingsView 
              navigateToProfile={() => setIsSettingsOpen(false)} 
-             navigateToLogin={navigateToLogin} // Passes the logout function
+             navigateToLogin={navigateToLogin} 
            />;
   }
   
-// If the user clicks on Past Orders, render the Past Orders View (US 11)
-if (isPastOrdersOpen) {
+  // RENDER MAIN PROFILE VIEW
   return (
-    <PastOrders
-      // Pass a function to navigate back to the main profile view
-      navigateToProfile={() => setIsPastOrdersOpen(false)}
-      // Pass setScreen if you want the Reorder button inside PastOrders to navigate to the Cart
-      setScreen={setScreen} 
-    />
-  );
-}
-
-
-  // Main Profile View (image_c3c135.png)
-  return (
-    <div className="profile-container" style={{padding: '20px', maxWidth: '400px', margin: 'auto', backgroundColor: 'white', borderRadius: '15px'}}>
-      
-      <div className="profile-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
-        <div>
-          <h1 style={{fontSize: '32px', margin: 0}}>{MOCK_USER.name}</h1>
-          <p style={{margin: '5px 0 0 0'}}>🛒 {MOCK_USER.status}</p>
-        </div>
-        <img src={MOCK_USER.image} alt="Profile" style={{width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover'}} />
-      </div>
-
-      {/* Feature Grid: Wallet, Favorites, Orders (US 11) */}
-      <div className="feature-grid" style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px'}}>
-        <button style={{width: '30%', padding: '15px', borderRadius: '10px', backgroundColor: '#3366ff', color: 'white'}}>💳 Wallet</button>
-        <button style={{width: '30%', padding: '15px', borderRadius: '10px', backgroundColor: '#ffcc33', color: 'black'}}>❤️ Favorites</button>
-        <button onClick={handleViewOrders} style={{width: '30%', padding: '15px', borderRadius: '10px', backgroundColor: '#0033cc', color: 'white'}}>📜 Orders</button>
-      </div>
-
-      {/* List Section: Notifications, Promotions, Settings */}
-      <div className="list-section" style={{borderTop: '1px solid #ccc'}}>
+    <div style={styles.pageWrapper}>
+      <div style={styles.profileContainer}> 
         
-        <div style={{padding: '15px 0', borderBottom: '1px solid #eee'}}>
-          <span role="img" aria-label="Bell" style={{marginRight: '15px'}}>🔔</span> Notifications
+        <div style={styles.profileHeader}>
+          <div>
+            <h1 style={styles.profileName}>{MOCK_USER.name}</h1>
+            <p style={styles.profileStatus}>{MOCK_USER.status}</p>
+          </div>
+          <img src={MOCK_USER.image} alt="Profile" style={styles.profilePic} />
         </div>
-        
-        <div style={{padding: '15px 0', borderBottom: '1px solid #eee'}}>
-          <span role="img" aria-label="Tag" style={{marginRight: '15px'}}>🏷️</span> Promotions
-        </div>
-        
-        {/* Click to open your Settings View */}
-        <div onClick={() => setIsSettingsOpen(true)} style={{padding: '15px 0', cursor: 'pointer'}}>
-          <span role="img" aria-label="Settings" style={{marginRight: '15px'}}>⚙️</span> Settings
-        </div>
-      </div>
 
-      <div className="navigation-footer" style={{marginTop: '30px', cursor: 'pointer'}} onClick={navigateToHome}>
-        <span style={{marginRight: '10px'}}>⬅️</span> back to home
+        {/* Feature Grid: Wallet, Favorites, Orders */}
+        <div style={styles.featureGrid}>
+          <button style={styles.walletButton}>💳 Wallet</button>
+
+          {/* FAVORITES Button: Sets mode to 'favorites' */}
+          <button 
+            style={styles.favoritesButton}
+            onClick={() => { setOrderViewMode('favorites'); setScreen("pastOrders"); }}
+          >
+            ❤️ Favorites ({favoriteOrders.length || 0})
+          </button>
+
+          {/* ORDERS Button: Sets mode to 'all' */}
+          <button 
+            onClick={() => { setOrderViewMode('all'); setScreen("pastOrders"); }} 
+            style={styles.ordersButton}
+          >
+            📜 Orders
+          </button>
+        </div>
+
+        {/* List Section: Notifications, Promotions, Settings */}
+        <div style={styles.listSection}>
+          
+          <div style={styles.listItem}>
+            <span role="img" aria-label="Bell" style={styles.itemIcon}>🔔</span> Notifications
+          </div>
+          
+          <div style={styles.listItem}>
+            <span role="img" aria-label="Tag" style={styles.itemIcon}>🏷️</span> Promotions
+          </div>
+          
+          {/* Click to open your Settings View */}
+          <div onClick={() => setIsSettingsOpen(true)} style={styles.listItem}>
+            <span role="img" aria-label="Settings" style={styles.itemIcon}>⚙️</span> Settings
+          </div>
+        </div>
+
+        {/* FINAL FIX: Styled Button at the Bottom */}
+        <div style={styles.finalFooterWrapper}>
+            <button style={styles.finalHomeButton} onClick={navigateToHome}>
+              <span style={styles.finalButtonArrow}>←</span> Back to Home
+            </button>
+        </div>
       </div>
     </div>
   );
+};
+
+
+// --- FINAL CONSOLIDATED STYLES OBJECT ---
+const styles = {
+    // Wrapper to center content and push it to the bottom
+    pageWrapper: {
+        width: "100vw",
+        height: "100vh",
+        backgroundColor: "#f0f0f0", 
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: 20,
+        fontFamily: "Arial",
+        justifyContent: 'flex-end', 
+        paddingBottom: '50px', 
+    },
+
+    // Shared Card Container (Height Fix is applied here)
+    profileContainer: {
+        padding: '20px',
+        maxWidth: '400px',
+        margin: 'auto',
+        backgroundColor: 'white',
+        borderRadius: '15px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+        color: '#333',
+        marginTop: '40px',
+        minHeight: '700px', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        justifyContent: 'space-between', 
+    },
+    
+    // Header/Info
+    profileHeader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '20px',
+    },
+    profileName: {
+        fontSize: '32px',
+        margin: 0,
+    },
+    profileStatus: {
+        margin: '5px 0 0 0',
+        fontSize: '14px',
+    },
+    profilePic: {
+        width: '80px',
+        height: '80px',
+        borderRadius: '50%',
+        objectFit: 'cover',
+    },
+    
+    // Feature Grid (Buttons)
+    featureGrid: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginBottom: '30px',
+    },
+    
+    walletButton: {
+        width: '30%',
+        padding: '15px',
+        borderRadius: '10px',
+        border: 'none',
+        color: 'white',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        backgroundColor: '#3366ff',
+    },
+    favoritesButton: {
+        width: '30%',
+        padding: '15px',
+        borderRadius: '10px',
+        border: 'none',
+        color: 'black',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        backgroundColor: '#ffcc33',
+    },
+    ordersButton: {
+        width: '30%',
+        padding: '15px',
+        borderRadius: '10px',
+        border: 'none',
+        color: 'white',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        backgroundColor: '#0033cc',
+    },
+    
+    // List Section (Notifications/Settings)
+    listSection: {
+        borderTop: '1px solid #ccc',
+        marginBottom: 'auto', // Pushes remaining space below list items
+    },
+    listItem: {
+        padding: '15px 0',
+        borderBottom: '1px solid #eee',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        fontSize: '16px',
+    },
+    itemIcon: {
+        marginRight: '15px',
+    },
+    
+    // FINAL FIX 3: Back to Home Button Style
+    finalFooterWrapper: {
+        width: '100%',
+        marginTop: '30px',
+        paddingTop: '15px', 
+        borderTop: '1px solid #eee',
+    },
+    finalHomeButton: {
+        width: '100%',
+        padding: '12px',
+        backgroundColor: '#030182', // Dark Blue
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        fontSize: '18px',
+        cursor: 'pointer',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    finalButtonArrow: {
+        marginRight: '10px',
+    },
+
+    // --- Settings View Specific Styles ---
+    settingsContainer: {
+        padding: '20px',
+        backgroundColor: 'white',
+        maxWidth: '400px',
+        margin: 'auto',
+        borderRadius: '15px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+        color: '#333',
+        marginTop: '40px',
+        minHeight: '550px',
+    },
+    settingsHeader: {
+        fontSize: '24px',
+        margin: '0 0 20px 0',
+        textAlign: 'center',
+    },
+    profileSummary: {
+        textAlign: 'center',
+        marginBottom: '30px',
+    },
+    profilePicLg: {
+        width: '100px',
+        height: '100px',
+        borderRadius: '50%',
+        objectFit: 'cover',
+    },
+    userName: {
+        marginTop: '10px',
+    },
+    userStatus: {
+        fontSize: '14px',
+    },
+    settingsList: {
+        borderTop: '1px solid #ccc',
+    },
+    deleteButton: {
+        padding: '15px 0',
+        borderBottom: '1px solid #eee',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        fontSize: '16px',
+        color: 'red',
+        fontWeight: 'bold',
+    },
+    settingsFooter: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginTop: '30px',
+    },
+    backButton: {
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        fontSize: '16px',
+    },
+    signOutButton: {
+        background: 'none',
+        border: 'none',
+        color: 'red',
+        cursor: 'pointer',
+        fontSize: '16px',
+    }
 };
 
 export default Profile;

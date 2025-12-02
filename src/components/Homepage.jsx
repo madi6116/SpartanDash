@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import pizzaLogo from "../assets/pizzamyheart.png";
 import laVictoriaImg from "../assets/La-Victoria.png";
+import janeDoePic from '../assets/JaneDoe.jpg';
 
 const PageWrapper = ({ children }) => (
   <div style={{
@@ -73,7 +74,12 @@ export default function HomePage({ setScreen, cart }) {
           onClick={() => setScreen("profile")}
           style={styles.profileBtn}
         >
-          👤
+          {}
+          <img 
+            src={janeDoePic} 
+            alt="User Profile" 
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+          />
         </button>
       </div>
 
@@ -166,14 +172,16 @@ logoutBtn: {
 },
 
 profileBtn: {
-  background: "white",
+  background: "transparent",
   border: "none",
   borderRadius: "50%",
-  fontSize: 18,
-  padding: "6px 9px",
+  padding: 0,
+  width: 40,
+  height: 40,
+  overflow: 'hidden',
   cursor: "pointer",
-  marginRight: 15,               
-  zIndex: 2
+  marginRight: 15,
+  zIndex: 2,
 },
 
   topSection: {
