@@ -1,5 +1,6 @@
 // src/components/Profile.jsx
 import React, { useState } from 'react';
+import PastOrders from './PastOrders';
 // Note: You will need to add corresponding CSS for proper styling.
 
 // --- Mock Data ---
@@ -73,7 +74,7 @@ const SettingsView = ({ navigateToProfile, navigateToLogin }) => {
 };
 
 // --- Main Profile Page Component (US 3, 11) ---
-const Profile = ({ navigateToHome, navigateToLogin }) => {
+const Profile = ({ navigateToHome, navigateToLogin, setScreen }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isPastOrdersOpen, setIsPastOrdersOpen] = useState(false);
   
@@ -91,16 +92,17 @@ const Profile = ({ navigateToHome, navigateToLogin }) => {
            />;
   }
   
-  // If the user clicks on Past Orders, render the Past Orders View (Placeholder)
-  if (isPastOrdersOpen) {
-    return (
-      <div style={{padding: '20px'}}>
-        <h2>Past Orders History</h2>
-        <p>This is where the list of past orders and the Reorder button (US 11.2) would be implemented.</p>
-        <button onClick={() => setIsPastOrdersOpen(false)}>⬅️ back to profile</button>
-      </div>
-    );
-  }
+// If the user clicks on Past Orders, render the Past Orders View (US 11)
+if (isPastOrdersOpen) {
+  return (
+    <PastOrders
+      // Pass a function to navigate back to the main profile view
+      navigateToProfile={() => setIsPastOrdersOpen(false)}
+      // Pass setScreen if you want the Reorder button inside PastOrders to navigate to the Cart
+      setScreen={setScreen} 
+    />
+  );
+}
 
 
   // Main Profile View (image_c3c135.png)

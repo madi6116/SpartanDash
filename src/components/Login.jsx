@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
 import dashLogo from "../assets/Logo.png";
 
-// MOCK DATA: Define valid credentials for the demo
-const MOCK_EMAIL = 'test@sjsu.edu';
-const MOCK_PASSWORD = 'password123';
-
-export default function Login({ setScreen }) {   
+export default function Login({ setScreen, registeredUsers, setRegisteredUsers }) {   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [studentId, setStudentId] = useState('');
@@ -19,25 +15,23 @@ export default function Login({ setScreen }) {  
     if (isLogin) {
       // --- LOGIN FLOW (US 1) ---
       
-      if (email === MOCK_EMAIL && password === MOCK_PASSWORD) {
-          // Success case for demo
-          // Use console.log instead of alert for smoother user experience
-          console.log("Login Successful!");
-          setScreen("home"); 
+      const correctPassword = registeredUsers[email];
+
+      if (correctPassword === password) {
+        console.log("Login Successful");
+        setScreen("home");
       } else {
-          // Failure case for robustness demo
-          alert("Login Failed. Invalid Email or Password.");
-          // IMPORTANT: Do NOT call setScreen("home") on failure
+        alert("Login failed. Invalid email or password");
       }
       
     } else {
       // --- SIGN UP FLOW (US 1.1, 1.2) ---
       
       // 1. Simulate checking for existing email (FR 1.2)
-      if (email === MOCK_EMAIL) {
-          alert("Sign Up Failed. This email is already registered (FR 1.2).");
-          return;
-      } 
+      if (registeredUsers[email]) {
+        alert("Sign Up Failed. This email is already registered.");
+        return;
+      }
       
       // 2. Simulate password strength check
       if (password.length < 8) { 
@@ -51,10 +45,14 @@ export default function Login({ setScreen }) {  
           return;
       }
 
+      setRegisteredUsers(prevUsers => ({
+          ...prevUsers,
+          [email]: password,
+      }));
+
       // Success case for Sign Up (FR 1.3)
       alert(`Account creation simulated successfully for ${email}. You may now log in.`);
       setIsLogin(true); // Switch to login screen after successful sign up
-      // Do NOT navigate to home yet, user must log in.
     }
   };
 
