@@ -6,6 +6,7 @@ import Payment from "./components/Payment";
 import Profile from "./components/Profile"; 
 import PastOrders from "./components/PastOrders"; 
 import MenuPage from "./components/Menupage";
+import Tracking from "./components/Tracking"
 
 // ADD INITIAL_USERS outside the App function
 const INITIAL_USERS = {
@@ -82,6 +83,12 @@ function App() {
         setScreen={setScreen}
         restaurantId ={selectedRestaurantId}
         setCart = {setCart} 
+        />
+      )}
+      {screen === "tracking" && (
+        <Tracking
+        setScreen={setScreen}
+        setCart={setCart}
         />
       )}
     </> 

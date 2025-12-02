@@ -140,12 +140,18 @@ const Profile = ({ navigateToHome, navigateToLogin, setScreen, setCart, favorite
           <div style={styles.listItem}>
             <span role="img" aria-label="Tag" style={styles.itemIcon}>🏷️</span> Promotions
           </div>
+
+          {/* Click to open your Tracking View */}
+          <div onClick={() => setScreen("tracking")} style={styles.listItem}>
+            <span role="img" aria-label="Tracking" style={styles.itemIcon}>🚚</span> Track Current Order
+          </div>
           
           {/* Click to open your Settings View */}
           <div onClick={() => setIsSettingsOpen(true)} style={styles.listItem}>
             <span role="img" aria-label="Settings" style={styles.itemIcon}>⚙️</span> Settings
           </div>
         </div>
+
 
         {/* FINAL FIX: Styled Button at the Bottom */}
         <div style={styles.finalFooterWrapper}>
