@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import dashLogo from "../assets/Logo.png";
 
-export default function Login({ setScreen }) {   
+// MOCK DATA: Define valid credentials for the demo
+const MOCK_EMAIL = 'test@sjsu.edu';
+const MOCK_PASSWORD = 'password123';
+
+export default function Login({ setScreen }) {   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [studentId, setStudentId] = useState('');
@@ -11,17 +15,48 @@ export default function Login({ setScreen }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if(isLogin){
-      //Login flow
-      alert(`Email: ${email}\nPassword: ${password}`);
-    }else{
-      alert(`Sign Up  Email: ${email}\nPassword: ${password}\nStudent ID: ${studentId}`);
-    }
+    
+    if (isLogin) {
+      // --- LOGIN FLOW (US 1) ---
       
-    setScreen("home");
-  };
+      if (email === MOCK_EMAIL && password === MOCK_PASSWORD) {
+          // Success case for demo
+          // Use console.log instead of alert for smoother user experience
+          console.log("Login Successful!");
+          setScreen("home"); 
+      } else {
+          // Failure case for robustness demo
+          alert("Login Failed. Invalid Email or Password.");
+          // IMPORTANT: Do NOT call setScreen("home") on failure
+      }
+      
+    } else {
+      // --- SIGN UP FLOW (US 1.1, 1.2) ---
+      
+      // 1. Simulate checking for existing email (FR 1.2)
+      if (email === MOCK_EMAIL) {
+          alert("Sign Up Failed. This email is already registered (FR 1.2).");
+          return;
+      } 
+      
+      // 2. Simulate password strength check
+      if (password.length < 8) { 
+          alert("Sign Up Failed. Password must be at least 8 characters long.");
+          return;
+      }
+      
+      // 3. Simulate Student ID check (FR 2.1)
+      if (studentId.length !== 9 || isNaN(studentId)) {
+          alert("Sign Up Failed. Student ID must be 9 digits and numeric.");
+          return;
+      }
 
-    // console.log("Auth form mode:", isLogin ? "Login" : "SignUp");
+      // Success case for Sign Up (FR 1.3)
+      alert(`Account creation simulated successfully for ${email}. You may now log in.`);
+      setIsLogin(true); // Switch to login screen after successful sign up
+      // Do NOT navigate to home yet, user must log in.
+    }
+  };
 
   return (
     //Page container , center card
@@ -48,7 +83,7 @@ export default function Login({ setScreen }) {
         </button>
         <button
           style={!isLogin ? styles.toggleActive : styles.toggleInactive}
-      
+        
           onClick={() => setIsLogin(false)}
         >
           Sign Up
@@ -110,7 +145,7 @@ export default function Login({ setScreen }) {
             />
 
           <label style={styles.label}>Student ID</label>
-          <input  
+          <input  
           type="text"
           placeholder="Enter your student ID"
           value={studentId}
@@ -118,7 +153,7 @@ export default function Login({ setScreen }) {
           required
           style={styles.input}
         />
-             {/*Submitt button*/}
+            {/*Submitt button*/}
             <button type="submit" style={styles.loginButton}>
               Create Account
             </button>
@@ -190,14 +225,15 @@ const styles = {
     marginTop: 4,
   },
 
-  card: {
-    width: "90%",
-    maxWidth: 380,
-    background: "white",
-    padding: 20,
-    borderRadius: 20,
-    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-  },
+card: {
+  width: "90%",
+  maxWidth: 380,
+  background: "white",
+  padding: 20,
+  borderRadius: 20,
+  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+  color: '#333', 
+},
 
   toggleRow: {
     display: "flex",
@@ -232,19 +268,20 @@ const styles = {
   },
 
   label: {
-     fontSize: 14,
+    fontSize: 14,
     fontWeight: "500",
     marginTop: 5,
   },
 
   //Input field
-  input: {
-    padding: 12,
-    fontSize: 14,
-    borderRadius: 10,
-    border: "1px solid #eee",
-    background: "#f5f5f5",
-  },
+input: {
+  padding: 12,
+  fontSize: 14,
+  borderRadius: 10,
+  border: "1px solid #eee",
+  background: "#f5f5f5",
+  color: '#000', 
+},
 
   //Submit button
   loginButton: {
