@@ -30,6 +30,9 @@ export default function Cart({ setScreen, cart, setCart }) {
   const updateQty = (index, delta) => {
     setCart(prev => {
       const updated = [...prev];
+      if (!updated[index].qty) {
+        updated[index].qty = 1; 
+      }
       updated[index].qty = Math.max(1, updated[index].qty + delta);
       return updated;
     });
@@ -41,7 +44,12 @@ export default function Cart({ setScreen, cart, setCart }) {
   };
 
   // Calculations
-  const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const subtotal = cart.reduce((sum, i) => {
+      // Safely parse price, use 1 if qty is missing
+      const itemPrice = parseFloat(i.price) || 0; 
+      const itemQty = i.qty || 1;
+      return sum + (itemPrice * itemQty);
+  }, 0);
   const delivery = cart.length > 0 ? 5.99 : 0;
   const tax = subtotal * 0.08;
   const total = (subtotal + delivery + tax).toFixed(2);
