@@ -1,8 +1,11 @@
-import React, { useState } from "react";
-import pizzaLogo from "../assets/pizzamyheart.png";
-import laVictoriaImg from "../assets/La-Victoria.png";
+import React, { useState, useEffect } from "react";
 import janeDoePic from '../assets/JaneDoe.jpg';
 
+// Local images
+import pizzaLogo from "../assets/PizzaMyHeart.png";
+import laVictoriaImg from "../assets/La-Victoria.png";
+
+// Page layout wrapper
 const PageWrapper = ({ children }) => (
   <div style={{
     width: "100vw",
@@ -28,39 +31,32 @@ const PageWrapper = ({ children }) => (
   </div>
 );
 
-export default function HomePage({ setScreen, cart , setSelectedRestaurantId}) {
+export default function HomePage({ setScreen, cart, setSelectedRestaurantId }) {
   const [search, setSearch] = useState("");
+  const [restaurants, setRestaurants] = useState([]);
 
-  const restaurants = [
-    {
-      id: "pizzamyheart",
-      name: "Pizza My Heart",
-      address: "1 Washington Square, San Jose, CA",
-      cuisine: "Pizza, Italian",
-      rating: 4.8,
-      time: "15–25 min",
-      minOrder: "$10 min order",
-      img: pizzaLogo,
-      id: "pizzamyheart"
-    },
-    {
-      id: "lavictoria",
-      name: "La Victoria Taqueria",
-      address: "140 E San Carlos St, San Jose, CA",
-      cuisine: "Mexican, Burritos",
-      rating: 4.7,
-      time: "10–20 min",
-      minOrder: "$10 min order",
-      img: laVictoriaImg,
-      id: "lavictoria"
-    }
-  ];
+  // Load restaurants from backend
+  useEffect(() => {
+    fetch("http://localhost:5000/restaurants")
+      .then(res => res.json())
+      .then(data => {
+        // Map backend image keys → actual imported images
+        const imageMap = {
+          pizzamyheart: pizzaLogo,
+          lavictoria: laVictoriaImg
+        };
 
-  const handleRestaurantClick = (restaurant) => {
-    setSelectedRestaurantId(restaurant.id);
-    setScreen(menu)
-  }
+        const mapped = data.map(r => ({
+          ...r,
+          img: imageMap[r.img] || null
+        }));
 
+        setRestaurants(mapped);
+      })
+      .catch(() => console.log("Failed to load restaurants from backend"));
+  }, []);
+
+  // Filter by search
   const filtered = restaurants.filter((r) =>
     r.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -70,22 +66,25 @@ export default function HomePage({ setScreen, cart , setSelectedRestaurantId}) {
       {/* HEADER */}
       <div style={styles.header}>
         <button
-          onClick={() => setScreen("login")}
+          onClick={() => {
+            localStorage.removeItem("token");
+            setScreen("login");
+          }}
           style={styles.logoutBtn}
         >
           Logout
         </button>
 
         <h2 style={styles.headerText}>Home Page</h2>
+
         <button
           onClick={() => setScreen("profile")}
           style={styles.profileBtn}
         >
-          {}
-          <img 
-            src={janeDoePic} 
-            alt="User Profile" 
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+          <img
+            src={janeDoePic}
+            alt="User Profile"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         </button>
       </div>
@@ -108,18 +107,24 @@ export default function HomePage({ setScreen, cart , setSelectedRestaurantId}) {
         </div>
       </div>
 
-      {/* RESTAURANTS */}
+      {/* RESTAURANTS LIST */}
       <div style={{ paddingBottom: 80, paddingTop: 16 }}>
-        {filtered.map((r, i) => (
+        {filtered.length === 0 && (
+          <div style={{ textAlign: "center", marginTop: 30, color: "#555" }}>
+            No restaurants found.
+          </div>
+        )}
+
+        {filtered.map((r) => (
           <div
-            key={r.id || i}
+            key={r.id}
             style={styles.card}
-            onClick={() =>{
+            onClick={() => {
               setSelectedRestaurantId(r.id);
-              setScreen("menu")
+              setScreen("menu");
             }}
           >
-            <img src={r.img} alt="" style={styles.cardImg} />
+            <img src={r.img} alt={r.name} style={styles.cardImg} />
 
             <div style={styles.cardInfo}>
               <div style={styles.cardTitleRow}>
@@ -140,7 +145,7 @@ export default function HomePage({ setScreen, cart , setSelectedRestaurantId}) {
         ))}
       </div>
 
-      {/* CART */}
+      {/* CART BUTTON */}
       <div
         style={styles.cartButton}
         onClick={() => setScreen("cart")}
@@ -151,18 +156,19 @@ export default function HomePage({ setScreen, cart , setSelectedRestaurantId}) {
   );
 }
 
-// Styles
-
+/* ---------------------- */
+/* Full Styles (unchanged) */
+/* ---------------------- */
 const styles = {
   header: {
-  width: "100%",
-  background: "#030182",
-  padding: "16px 8px",        
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  position: "relative"
-}, 
+    width: "100%",
+    background: "#030182",
+    padding: "16px 8px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    position: "relative"
+  },
 
   headerText: {
     margin: 0,
@@ -170,29 +176,30 @@ const styles = {
     fontSize: 20,
     fontWeight: 600,
   },
-logoutBtn: {
-  background: "transparent",
-  border: "1px solid white",
-  padding: "4px 8px",
-  borderRadius: 8,
-  color: "white",
-  cursor: "pointer",
-  fontSize: 12,
-  zIndex: 2                     
-},
 
-profileBtn: {
-  background: "transparent",
-  border: "none",
-  borderRadius: "50%",
-  padding: 0,
-  width: 40,
-  height: 40,
-  overflow: 'hidden',
-  cursor: "pointer",
-  marginRight: 15,
-  zIndex: 2,
-},
+  logoutBtn: {
+    background: "transparent",
+    border: "1px solid white",
+    padding: "4px 8px",
+    borderRadius: 8,
+    color: "white",
+    cursor: "pointer",
+    fontSize: 12,
+    zIndex: 2,
+  },
+
+  profileBtn: {
+    background: "transparent",
+    border: "none",
+    borderRadius: "50%",
+    padding: 0,
+    width: 40,
+    height: 40,
+    overflow: "hidden",
+    cursor: "pointer",
+    marginRight: 15,
+    zIndex: 2,
+  },
 
   topSection: {
     width: "100%",
@@ -212,6 +219,7 @@ profileBtn: {
     top: 10,
     left: 12,
     fontSize: 18,
+    color: "white"
   },
 
   searchInput: {
@@ -223,7 +231,7 @@ profileBtn: {
     fontSize: 16,
     outline: "none",
     background: "white",
-    color: "black"  
+    color: "black",
   },
 
   card: {

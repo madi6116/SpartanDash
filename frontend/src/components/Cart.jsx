@@ -25,39 +25,53 @@ const PageWrapper = ({ children }) => (
   </div>
 );
 
-export default function Cart({ setScreen, cart, setCart }) {
-  // Update quantity (+/-)
+export default function Cart({ setScreen, cart, setCart, selectedRestaurantId }) {
+
   const updateQty = (index, delta) => {
     setCart(prev => {
       const updated = [...prev];
-      if (!updated[index].qty) {
-        updated[index].qty = 1; 
-      }
-      updated[index].qty = Math.max(1, updated[index].qty + delta);
+      updated[index].qty = Math.max(1, (updated[index].qty || 1) + delta);
       return updated;
     });
   };
 
-  // Delete item
   const deleteItem = (index) => {
     setCart(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Calculations
-  const subtotal = cart.reduce((sum, i) => {
-      // Safely parse price, use 1 if qty is missing
-      const itemPrice = parseFloat(i.price) || 0; 
-      const itemQty = i.qty || 1;
-      return sum + (itemPrice * itemQty);
-  }, 0);
-  const delivery = cart.length > 0 ? 5.99 : 0;
+  const subtotal = cart.reduce((sum, i) => sum + i.price * (i.qty || 1), 0);
+  const delivery = cart.length ? 5.99 : 0;
   const tax = subtotal * 0.08;
   const total = (subtotal + delivery + tax).toFixed(2);
 
+
+  // SEND ORDER TO BACKEND
+  const handleCheckout = async () => {
+    const userEmail = localStorage.getItem("email");
+
+    const res = await fetch("http://localhost:5000/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userEmail,
+        restaurantId: selectedRestaurantId,
+        items: cart,
+        total,
+      }),
+    });
+
+    if (!res.ok) {
+      return alert("Error placing order.");
+    }
+
+    setCart([]);
+    setScreen("tracking"); 
+  };
+
   return (
     <PageWrapper>
-      {/* HEADER */}
-      <div style={{ background: "#030182", padding: 16, position: "relative" }}>
+
+      <div style={{ background: "#030182", padding: 16 }}>
         <button
           onClick={() => setScreen("home")}
           style={{ background: "transparent", border: "none", color: "white", fontSize: 20 }}
@@ -68,32 +82,24 @@ export default function Cart({ setScreen, cart, setCart }) {
       </div>
 
       <div style={{ padding: 16 }}>
-        {/* No Items TEMPORARY UPDATE WHEN MENU IS ADDED*/}
+
         {cart.length === 0 && (
           <div style={{ textAlign: "center", marginTop: 40, color: "#4A5565" }}>
             Your cart is empty.
           </div>
         )}
 
-        {/* ITEMS */}
         {cart.map((item, index) => (
-          <div
-            key={index}
-            style={{
-              background: "white",
-              borderRadius: 16,
-              padding: 16,
-              marginBottom: 12,
-              border: "1px solid #e0e0ff"
-            }}
-          >
+          <div key={index} style={{
+            background: "white",
+            borderRadius: 16,
+            padding: 16,
+            marginBottom: 12,
+            border: "1px solid #e0e0ff"
+          }}>
             <div style={{ color: "#030182", fontSize: 18 }}>{item.name}</div>
-            <div style={{ color: "#4A5565" }}>{item.restaurant}</div>
-            <div style={{ color: "#1674D5", fontSize: 16 }}>
-              ${item.price.toFixed(2)}
-            </div>
+            <div style={{ color: "#1674D5", fontSize: 16 }}>${item.price}</div>
 
-            {/* Quantity Controls */}
             <div style={{
               marginTop: 10,
               display: "flex",
@@ -116,30 +122,17 @@ export default function Cart({ setScreen, cart, setCart }) {
                 gap: 12
               }}>
 
-                <button
-                  onClick={() => updateQty(index, -1)}
-                  style={qtyBtn}
-                >
-                  –
-                </button>
-
+                <button onClick={() => updateQty(index, -1)} style={qtyBtn}>–</button>
                 <div style={{ fontSize: 16, fontWeight: 600, color: "#030182" }}>
-                  {item.qty}
+                  {item.qty || 1}
                 </div>
-
-                <button
-                  onClick={() => updateQty(index, 1)}
-                  style={qtyBtn}
-                >
-                  +
-                </button>
+                <button onClick={() => updateQty(index, 1)} style={qtyBtn}>+</button>
 
               </div>
             </div>
           </div>
         ))}
 
-        {/* SUMMARY */}
         {cart.length > 0 && (
           <>
             <h3 style={{ color: "#030182", marginTop: 20 }}>Order Summary</h3>
@@ -160,7 +153,7 @@ export default function Cart({ setScreen, cart, setCart }) {
             </div>
 
             <button
-              onClick={() => setScreen("payment")}
+              onClick={handleCheckout}
               style={{
                 width: "100%",
                 marginTop: 20,
@@ -183,7 +176,6 @@ export default function Cart({ setScreen, cart, setCart }) {
   );
 }
 
-// STYLES
 const qtyBtn = {
   width: 28,
   height: 28,
@@ -199,7 +191,11 @@ const qtyBtn = {
 };
 
 const Row = ({ label, value }) => (
-  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+  <div style={{
+    display: "flex",
+    justifyContent: "space-between",
+    marginBottom: 8
+  }}>
     <div style={{ color: "#4A5565" }}>{label}</div>
     <div style={{ color: "#030182" }}>{value}</div>
   </div>
