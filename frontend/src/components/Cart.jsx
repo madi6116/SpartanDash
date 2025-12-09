@@ -103,7 +103,7 @@ export default function Cart({ setScreen, cart, setCart, selectedRestaurantId, a
         date: today,
         total: FINAL_TOTAL,
         restaurant: "Pizza My Heart", // Mocking a restaurant name for history view
-        items: cart.map(item => `${item.quantity}x ${item.name}`),
+        items: cart.map(item => `${item.qty || 1 }x ${item.name}`),
         isFavorite: false 
     };
 

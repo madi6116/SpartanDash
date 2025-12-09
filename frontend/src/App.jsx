@@ -9,6 +9,7 @@ import MenuPage from "./components/Menupage";
 import Tracking from "./components/Tracking";
 import Promotions from "./components/Promotions";
 import CardManagement from "./components/CardManagement";
+import CancelConfirm from "./components/CancelConfirm"; 
 
 const INITIAL_FAVORITES = [1009, 1007, 1004, 1001];
 
@@ -26,7 +27,7 @@ function App() {
   // Tracks the currently applied promotion (code, type, value, etc.)
   const [appliedDiscount, setAppliedDiscount] = useState(null); 
   
-  // NEW STATE: Stores completed orders to display in PastOrders
+  // Stores completed orders to display in PastOrders
   const [orderHistory, setOrderHistory] = useState([]); 
 
   // Existing states
@@ -75,6 +76,28 @@ function App() {
   const completeOrder = (newOrder) => {
     setOrderHistory(prevHistory => [newOrder, ...prevHistory]); // Add new order to the top
   };
+
+    // Function to cancel the latest order and update history
+    const cancelLatestOrder = () => {
+        setOrderHistory(prevHistory => {
+            if (prevHistory.length === 0) return prevHistory;
+
+            // Get the most recent order (the one at index 0)
+            const latestOrder = prevHistory[0];
+
+            // Create a new, canceled version of that order
+            const canceledOrder = {
+                ...latestOrder,
+                restaurant: `[CANCELED] ${latestOrder.restaurant}`, // Indicate cancellation in the name
+                total: 0.00, // Optionally zero out the total for clarity
+                status: 'CANCELED'
+            };
+
+            // Return the new array with the canceled order replacing the old one
+            return [canceledOrder, ...prevHistory.slice(1)];
+        });
+    };
+
 
   return (
     <>
@@ -129,7 +152,7 @@ function App() {
           favoriteOrders={favoriteOrders}
           setFavoriteOrders={setFavoriteOrders}
           setOrderViewMode={setOrderViewMode}
-          cart={cart}
+          cart={cart}
         />
       )}
       
@@ -171,13 +194,23 @@ function App() {
         />
       )}
 
-      {/* TRACKING PAGE */}
+      {/* TRACKING PAGE (Pass Cancellation Handler) */}
       {screen === "tracking" && (
         <Tracking 
           setScreen={setScreen}
           setCart={setCart}
+          cancelLatestOrder={cancelLatestOrder}
         />
       )}
+
+    {/* Cancellation Confirmation */}
+    {screen === "cancelConfirm" && (
+        <CancelConfirm 
+            setScreen={setScreen}
+        />
+    )}
+
+    {/**/}
     </>
   );
 }
