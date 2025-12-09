@@ -9,7 +9,12 @@ import MenuPage from "./components/Menupage";
 import Tracking from "./components/Tracking";
 import Promotions from "./components/Promotions";
 import CardManagement from "./components/CardManagement";
-import CancelConfirm from "./components/CancelConfirm"; 
+import CancelConfirm from "./components/CancelConfirm";
+import ReviewAndTip from "./components/ReviewAndTip";
+import CourierApplication from "./components/CourierApplication";
+import JobOffer from "./components/JobOffer"; // Assuming you have this mock component
+import MockStorePortal from "./components/MockStorePortal"; // Assuming you have this mock component
+import MockAdminPortal from "./components/MockAdminPortal"; // Assuming you have this mock component
 
 const INITIAL_FAVORITES = [1009, 1007, 1004, 1001];
 
@@ -23,6 +28,8 @@ function App() {
   // STATES for User and Authentication
   const [profileData, setProfileData] = useState(null);
   const [screen, setScreen] = useState("login");
+  // Tracks user's courier application status
+  const [courierStatus, setCourierStatus] = useState("None");
   
   // Tracks the currently applied promotion (code, type, value, etc.)
   const [appliedDiscount, setAppliedDiscount] = useState(null); 
@@ -106,6 +113,7 @@ function App() {
         <Login 
           setScreen={setScreen}
           setProfileData={setProfileData} // Prop to receive user data
+          setCourierStatus={setCourierStatus} // Pass setter for role bypass in Login
         />
       )}
 
@@ -153,6 +161,8 @@ function App() {
           setFavoriteOrders={setFavoriteOrders}
           setOrderViewMode={setOrderViewMode}
           cart={cart}
+            courierStatus={courierStatus} // PASS COURIER STATUS
+            setCourierStatus={setCourierStatus} // PASS COURIER STATUS SETTER
         />
       )}
       
@@ -172,7 +182,7 @@ function App() {
         />
       )}
 
-      {/* PAST ORDERS */}
+      {/* PAST ORDERS (Updated to pass courierStatus for role-based view) */}
       {screen === "pastOrders" && (
         <PastOrders
           navigateToProfile={() => setScreen("profile")}
@@ -182,6 +192,8 @@ function App() {
           setFavoriteOrders={setFavoriteOrders}
           orderViewMode={orderViewMode}
           orderHistory={orderHistory}
+          // OPTIONAL BUT RECOMMENDED: Pass courierStatus
+          courierStatus={courierStatus} 
         />
       )}
 
@@ -202,6 +214,42 @@ function App() {
           cancelLatestOrder={cancelLatestOrder}
         />
       )}
+    
+    {/* REVIEW AND TIP PAGE */}
+    {screen === "reviewAndTip" && (
+        <ReviewAndTip setScreen={setScreen} />
+    )}
+
+    {/* COURIER APPLICATION SCREEN */}
+    {screen === "courierApply" && (
+        <CourierApplication 
+          setScreen={setScreen} 
+          setCourierStatus={setCourierStatus} 
+        />
+    )}
+    
+    {/* MOCK COURIER JOB OFFER SCREEN */}
+    {screen === "jobOffer" && (
+        <JobOffer 
+            setScreen={setScreen}
+        />
+    )}
+
+    {/* MOCK STORE PORTAL SCREEN */}
+    {screen === "storePortal" && (
+        <MockStorePortal 
+            setScreen={setScreen}
+        />
+    )}
+
+    {/* MOCK ADMIN PORTAL SCREEN */}
+    {screen === "adminPortal" && (
+        <MockAdminPortal 
+            setScreen={setScreen}
+            setCourierStatus={setCourierStatus}
+            navigateToLogin={handleLogout}
+        />
+    )}
 
     {/* Cancellation Confirmation */}
     {screen === "cancelConfirm" && (
@@ -209,8 +257,6 @@ function App() {
             setScreen={setScreen}
         />
     )}
-
-    {/**/}
     </>
   );
 }

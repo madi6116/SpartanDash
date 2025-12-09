@@ -1,7 +1,9 @@
+// C:\Users\charl\Desktop\SpartanDash\frontend\src\components\Tracking.jsx
+
 import React, {useState} from "react";
 import mapPlaceholder from "../assets/map-placeholder.jpg";
 
-// Proper Page Wrapper (Layout helper component)
+// Proper Page Wrapper (Layout helper component - assuming you've defined this elsewhere)
 const PageWrapper = ({ children }) => (
   <div style={{
     width: "100vw",
@@ -27,15 +29,12 @@ const PageWrapper = ({ children }) => (
   </div>
 );
 
-// Accept the global screen navigator and order cancellation handler
 export default function Tracking({setScreen, cancelLatestOrder}) {
-    // Mock order data (remains for tracking display)
     const restaurantName = "Pizza Paradise";
     const orderId = "100100";
     const eta = "11:00 AM";
     const address = "123 Main St";
     
-    // Local state for instructions/messages
     const [statusMessage, setStatusMessage] = useState("");
     const [instructions, setInstructions] = useState("");
 
@@ -44,24 +43,25 @@ export default function Tracking({setScreen, cancelLatestOrder}) {
         setTimeout(() => setStatusMessage(""), 2500);
     };
 
-    // Function to cancel the current order and update app history
     const handleCancelOrder = () => {
         const confirm = window.confirm("Are you sure you want to cancel this order? This action cannot be undone and the order will show as CANCELED in your history.");
 
         if(!confirm) return;
 
-        // Use the global handler to mark the last order as CANCELED
         if (cancelLatestOrder) {
             cancelLatestOrder();
         }
-
-        // Navigate to the cancellation confirmation screen
         setScreen("cancelConfirm"); 
     };
+    
+    // NEW: Function to simulate delivery completion and start review process
+    const handleDeliveryComplete = () => {
+        setScreen("reviewAndTip");
+    };
 
     return (
     <PageWrapper>
-      {/* Header */}
+      {/* Header JSX remains the same */}
       <div style={trackingStyles.header}>
         <button
           onClick={() => setScreen("profile")}
@@ -147,7 +147,6 @@ export default function Tracking({setScreen, cancelLatestOrder}) {
           <button
             onClick={handleCancelOrder}
             style={trackingStyles.cancelBtn}
-            
           >
             Cancel Order
           </button>
@@ -158,6 +157,14 @@ export default function Tracking({setScreen, cancelLatestOrder}) {
             Contact Driver
           </button>
         </div>
+        
+        {/* NEW: Confirm Delivery Button */}
+        <button
+            onClick={handleDeliveryComplete}
+            style={trackingStyles.completeDeliveryBtn}
+        >
+            Simulate Delivery Complete
+        </button>
 
         {statusMessage && (
           <div style={trackingStyles.toast}>{statusMessage}</div>
@@ -168,6 +175,7 @@ export default function Tracking({setScreen, cancelLatestOrder}) {
 }
 
 const trackingStyles = {
+    // ... (All existing styles)
   header: {
     width: "100%",
     backgroundColor: "#030182",
@@ -284,6 +292,7 @@ const trackingStyles = {
     display: "flex",
     gap: 10,
     marginTop: 16,
+    marginBottom: 10, // Added margin for separation from new button
   },
   cancelBtn: {
     flex: 1,
@@ -307,6 +316,19 @@ const trackingStyles = {
     fontSize: 13,
     cursor: "pointer",
   },
+    // NEW STYLE for delivery completion
+    completeDeliveryBtn: {
+        width: '100%',
+        padding: '12px 12px',
+        borderRadius: 999,
+        border: 'none',
+        backgroundColor: '#4CAF50', // Green color for completion
+        color: '#FFFFFF',
+        fontWeight: 700,
+        fontSize: 14,
+        cursor: 'pointer',
+        marginTop: 10,
+    },
   cancelBanner: {
     marginBottom: 12,
     padding: "8px 12px",

@@ -15,7 +15,7 @@ const MOCK_ORDER_HISTORY = [
 ];
 
 // --- Component for a single order item ---
-const MockOrderItem = ({ order, navigateToCart, setCart, favoriteOrders, setFavoriteOrders }) => {
+const MockOrderItem = ({ order, navigateToCart, setCart, favoriteOrders, setFavoriteOrders, isCourier }) => {
     
     const isFavorited = favoriteOrders.includes(order.id);
 
@@ -32,7 +32,7 @@ const MockOrderItem = ({ order, navigateToCart, setCart, favoriteOrders, setFavo
             name: itemName,
             restaurant: order.restaurant,
             // Mock price calculation relies on the total, use a fixed price for simplicity
-            price: order.total / order.items.length, 
+            price: order.total / order.items.length, 
             quantity: 1,
         }));
         
@@ -49,45 +49,62 @@ const MockOrderItem = ({ order, navigateToCart, setCart, favoriteOrders, setFavo
             
             <div style={styles.orderHeartWrapper}>
                 <div style={styles.orderDetails}>
-                    <h4 style={styles.orderTitle}>{order.restaurant}<br />Order #{order.id}</h4> 
+                    {/* If it's a courier, show the status/total clearly */}
+                    <h4 style={styles.orderTitle}>
+                        {order.restaurant} {isCourier && `(${order.date})`}
+                        <br />Order #{order.id}
+                    </h4> 
                     
                     <p style={styles.orderSummary}>
-                        <strong>Total:</strong> ${order.total.toFixed(2)} <br /> <strong>Items:</strong> {order.items.join(', ')}
+                        {isCourier ? 
+                            `Pay: $${order.total.toFixed(2)} | Items: ${order.items.length}` 
+                            : 
+                            `Total: $${order.total.toFixed(2)} | Items: ${order.items.join(', ')}`
+                        }
                     </p>
                 </div>
                 
-                <span 
-                    onClick={handleToggleFavorite} 
-                    style={{ 
-                        ...styles.favoriteHeart, 
-                        color: isFavorited ? 'red' : 'lightgray' 
-                    }}
-                    role="img" 
-                    aria-label="favorite"
-                >
-                    &#x2764; 
-                </span>
+                {/* HIDE HEART ICON FOR COURIERS */}
+                {!isCourier && (
+                    <span 
+                        onClick={handleToggleFavorite} 
+                        style={{ 
+                            ...styles.favoriteHeart, 
+                            color: isFavorited ? 'red' : 'lightgray' 
+                        }}
+                        role="img" 
+                        aria-label="favorite"
+                    >
+                        &#x2764; 
+                    </span>
+                )}
             </div>
 
-            <button 
-                onClick={handleReorder} 
-                style={styles.reorderButton}
-            >
-                Reorder
-            </button>
+            {/* HIDE REORDER BUTTON FOR COURIERS */}
+            {!isCourier && (
+                <button 
+                    onClick={handleReorder} 
+                    style={styles.reorderButton}
+                >
+                    Reorder
+                </button>
+            )}
         </div>
     );
 };
 
 
 // --- Main Past Orders Component (Conditional Rendering) ---
-// ACCEPT orderHistory PROP
 const PastOrders = ({ navigateToProfile, setScreen, setCart, favoriteOrders, setFavoriteOrders, orderViewMode, orderHistory }) => {
     
-    // Combine live orders (orderHistory) with mock data
-    const ALL_ORDERS = [...orderHistory, ...MOCK_ORDER_HISTORY]; 
+    // Get the current user ID/Role from localStorage
+    const currentUserId = localStorage.getItem('currentUserId');
+    const isCourier = currentUserId === 'courier';
+    
+    // Combine live orders (orderHistory) with mock data
+    const ALL_ORDERS = [...orderHistory, ...MOCK_ORDER_HISTORY]; 
 
-    const navigateToCart = () => {
+    const navigateToCart = () => {
         if (setScreen) {
             setScreen("cart");
         }
@@ -98,52 +115,68 @@ const PastOrders = ({ navigateToProfile, setScreen, setCart, favoriteOrders, set
     if (orderViewMode === 'favorites') {
         // --- FAVORITES VIEW: Filtered and Grouped ---
         
-        const favoritedOrders = ALL_ORDERS.filter(order => favoriteOrders.includes(order.id));
-        
-        const groupedOrders = favoritedOrders.reduce((acc, order) => {
-            if (!acc[order.restaurant]) {
-                acc[order.restaurant] = [];
-            }
-            acc[order.restaurant].push(order);
-            return acc;
-        }, {});
+        // Couriers don't have favorites, so this view is effectively empty for them
+        // We ensure we only display favorites if the user is a normal customer
+        if (isCourier) {
+            listContent = (
+                <p style={{ textAlign: 'center', padding: '50px' }}>
+                    Couriers do not track favorite customer orders.
+                </p>
+            );
+        } else {
+            const favoritedOrders = ALL_ORDERS.filter(order => favoriteOrders.includes(order.id));
+            
+            const groupedOrders = favoritedOrders.reduce((acc, order) => {
+                if (!acc[order.restaurant]) {
+                    acc[order.restaurant] = [];
+                }
+                acc[order.restaurant].push(order);
+                return acc;
+            }, {});
 
-        const restaurantNames = Object.keys(groupedOrders);
-        
-        if (restaurantNames.length === 0) {
-            listContent = (
-                <p style={{ textAlign: 'center', padding: '50px' }}>
-                    No favorited orders found. Click a heart icon to save one!
-                </p>
-            );
-        } else {
-            listContent = restaurantNames.map(restaurant => (
-                <div key={restaurant} style={styles.restaurantGroup}>
-                    <h3 style={styles.restaurantHeader}>{restaurant}</h3>
-                    {groupedOrders[restaurant].map(order => (
-                        <MockOrderItem 
-                            key={order.id} 
-                            order={order} 
-                            navigateToCart={navigateToCart}
-                            setCart={setCart} 
-                            favoriteOrders={favoriteOrders}
-                            setFavoriteOrders={setFavoriteOrders} 
-                        />
-                    ))}
-                </div>
-            ));
-        }
+            const restaurantNames = Object.keys(groupedOrders);
+            
+            if (restaurantNames.length === 0) {
+                listContent = (
+                    <p style={{ textAlign: 'center', padding: '50px' }}>
+                        No favorited orders found. Click a heart icon to save one!
+                    </p>
+                );
+            } else {
+                listContent = restaurantNames.map(restaurant => (
+                    <div key={restaurant} style={styles.restaurantGroup}>
+                        <h3 style={styles.restaurantHeader}>{restaurant}</h3>
+                        {groupedOrders[restaurant].map(order => (
+                            <MockOrderItem 
+                                key={order.id} 
+                                order={order} 
+                                navigateToCart={navigateToCart}
+                                setCart={setCart} 
+                                favoriteOrders={favoriteOrders}
+                                setFavoriteOrders={setFavoriteOrders}
+                                isCourier={isCourier} // Pass the flag
+                            />
+                        ))}
+                    </div>
+                ));
+            }
+        }
 
     } else {
-        // --- ALL ORDERS VIEW: Simple, unsorted list (Default for "Orders" tab) ---
-        listContent = ALL_ORDERS.map(order => (
+        // --- ALL ORDERS / DELIVERY HISTORY VIEW ---
+        
+        // Use a reverse sort to show the newest orders (the ones placed during the demo) first
+        const sortedOrders = ALL_ORDERS.sort((a, b) => b.id - a.id);
+
+        listContent = sortedOrders.map(order => (
             <MockOrderItem 
                 key={order.id} 
                 order={order} 
                 navigateToCart={navigateToCart}
                 setCart={setCart} 
                 favoriteOrders={favoriteOrders}
-                setFavoriteOrders={setFavoriteOrders} 
+                setFavoriteOrders={setFavoriteOrders}
+                isCourier={isCourier} // Pass the flag
             />
         ));
     }
@@ -153,10 +186,10 @@ const PastOrders = ({ navigateToProfile, setScreen, setCart, favoriteOrders, set
         <div style={styles.pageWrapper}>
             <div style={styles.profileCard}> 
                 <h2 style={styles.header}>
-                    {orderViewMode === 'favorites' ? '❤️ Favorite Orders' : '📜 All Order History'}
+                    {isCourier ? '📦 Delivery History' : (orderViewMode === 'favorites' ? '❤️ Favorite Orders' : '📜 All Order History')}
                 </h2> 
                 <p style={styles.subtitle}>
-                    {orderViewMode === 'favorites' ? 'Your saved orders, grouped by restaurant.' : 'View all completed orders and reorder quickly.'}
+                    {isCourier ? 'Completed deliveries associated with your account (FR 16.1).' : (orderViewMode === 'favorites' ? 'Your saved orders, grouped by restaurant.' : 'View all completed orders and reorder quickly.')}
                 </p>
 
                 <div style={styles.listContainer}>

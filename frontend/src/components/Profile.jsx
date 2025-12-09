@@ -1,10 +1,45 @@
 import React, { useState } from 'react';
-import PastOrders from './PastOrders'; 
 import profilePic from '../assets/JaneDoe.jpg'; 
 
 // --- Settings View Component ---
-const SettingsView = ({ navigateToProfile, navigateToLogin, currentUserId, currentUserEmail, profileData }) => {
-    // ... (SettingsView logic and JSX)
+// Needs setScreen and setCourierStatus from the main App component
+const SettingsView = ({ navigateToProfile, navigateToLogin, currentUserId, currentUserEmail, profileData, setScreen, setCourierStatus }) => {
+    
+    // Just simulates deleting the account and logging out
+    const handleAccountClosure = async () => {
+        if (!currentUserId) {
+            alert("Error: Cannot delete account. User ID not found.");
+            return;
+        }
+
+        if (!window.confirm("Are you sure you want to permanently close your account? This action cannot be undone.")) {
+            return; 
+        }
+        
+        // pretending the backend handled it
+        navigateToLogin(); 
+        alert(`Account deletion simulated successfully!`);
+    };
+
+    // This handles going to the Courier Application page (TC 17)
+    const handleApplyToCourier = () => {
+        setScreen("courierApply");
+    };
+
+    // Simulates an admin banning this user (TC 26)
+    const handleAdminBan = () => {
+        alert("Admin Action Simulated: You have been banned and are now logged out.");
+        navigateToLogin(); 
+    };
+
+    // Simulates an admin verifying this user's ID (TC 27)
+    const handleAdminVerify = () => {
+        setCourierStatus("Verified");
+        navigateToProfile(); // Go back to the profile to show the new status
+        alert("Admin Action Simulated: Status updated to 'Verified Courier'!");
+    };
+
+
     const displayName = profileData?.name || profileData?.email?.split('@')[0] || "New User";
 
     return (
@@ -28,11 +63,23 @@ const SettingsView = ({ navigateToProfile, navigateToLogin, currentUserId, curre
                         <span role="img" aria-label="Person" style={styles.itemIcon}>👤</span> Personal Info.
                     </div>
                     
-                    <div onClick={() => alert('Navigating to Courier Application form for ID verification.')} style={styles.listItem}>
+                    {/* Courier Application button */}
+                    <div onClick={handleApplyToCourier} style={styles.listItem}>
                         <span role="img" aria-label="Box" style={styles.itemIcon}>📦</span> Apply to Be a Courier
                     </div>
                     
-                    <div onClick={() => window.confirm("Are you sure you want to permanently close your account?")} style={styles.deleteButton}>
+                    {/* Admin Verification Button */}
+                    <div onClick={handleAdminVerify} style={styles.adminButton}>
+                        <span role="img" aria-label="Check" style={styles.itemIcon}>✅</span> SIMULATE: Admin Verify ID
+                    </div>
+
+                    {/* Delete Account button (Simulated Admin Ban is here too) */}
+                    <div onClick={handleAdminBan} style={styles.adminDeleteButton}>
+                        <span role="img" aria-label="Ban" style={styles.itemIcon}>⛔</span> SIMULATE: Admin Ban Account
+                    </div>
+
+                    {/* Original Delete Account */}
+                    <div onClick={handleAccountClosure} style={styles.deleteButton}>
                         <span role="img" aria-label="X" style={styles.itemIcon}>❌</span> Delete Account
                     </div>
                 </div>
@@ -51,7 +98,8 @@ const SettingsView = ({ navigateToProfile, navigateToLogin, currentUserId, curre
 
 
 // --- Main Profile Page Component ---
-const Profile = ({ navigateToHome, navigateToLogin, setScreen, favoriteOrders, setOrderViewMode, profileData, cart }) => {
+// Gets the courier status from the main app state
+const Profile = ({ navigateToHome, navigateToLogin, setScreen, favoriteOrders, setOrderViewMode, profileData, cart, courierStatus, setCourierStatus }) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     
     const storedId = localStorage.getItem('currentUserId');
@@ -67,14 +115,22 @@ const Profile = ({ navigateToHome, navigateToLogin, setScreen, favoriteOrders, s
         setScreen("pastOrders"); 
     };
 
+    // Makes the status text change based on our courier state
+    const statusText = (courierStatus === "Pending") 
+        ? "📦 Pending Courier Application" 
+        : (courierStatus === "Verified" ? "✅ Verified Courier" : "🛒 Verified Student");
+
+
     if (isSettingsOpen) {
         return <SettingsView 
-                  navigateToProfile={() => setIsSettingsOpen(false)} 
-                  navigateToLogin={navigateToLogin} 
-                  currentUserId={currentUserId}
-                  currentUserEmail={currentUserEmail}
-                  profileData={profileData} 
-               />;
+                    navigateToProfile={() => setIsSettingsOpen(false)} 
+                    navigateToLogin={navigateToLogin} 
+                    currentUserId={currentUserId}
+                    currentUserEmail={currentUserEmail}
+                    profileData={profileData} 
+                    setScreen={setScreen} // Allows navigation away from settings
+                    setCourierStatus={setCourierStatus} // Allows setting the courier state
+                />;
     }
     
     // RENDER MAIN PROFILE VIEW
@@ -85,7 +141,8 @@ const Profile = ({ navigateToHome, navigateToLogin, setScreen, favoriteOrders, s
                 <div style={styles.profileHeader}>
                     <div>
                         <h1 style={styles.profileName}>{name}</h1>
-                        <p style={styles.profileStatus}>🛒 Verified Student</p>
+                        {/* Shows the new dynamic status */}
+                        <p style={styles.profileStatus}>{statusText}</p>
                     </div>
                     
                     {/* Cart Wrapper */}
@@ -126,10 +183,29 @@ const Profile = ({ navigateToHome, navigateToLogin, setScreen, favoriteOrders, s
                     </button>
                 </div>
 
+                {/* COURIER ACTIONS: Only show if Verified Courier */}
+                {courierStatus === "Verified" && (
+                    <div style={styles.courierSection}>
+                        <h3 style={styles.courierHeader}>Courier Tools:</h3>
+                        <button 
+                            onClick={() => handleViewOrders('all')} // Delivery History (FR 16.1)
+                            style={styles.deliveryHistoryButton}
+                        >
+                            📦 View Delivery History
+                        </button>
+                        <button 
+                            onClick={() => setScreen("jobOffer")} // New Job Offer (TC 19/20)
+                            style={styles.jobOfferButton}
+                        >
+                            💼 View New Job Offers
+                        </button>
+                    </div>
+                )}
+                
                 {/* List Section: Notifications, Promotions, Settings */}
                 <div style={styles.listSection}>
                     
-                    <div style={styles.listItem}>
+                    <div onClick={() => console.log('Go to Notifications')} style={styles.listItem}>
                         <span role="img" aria-label="Bell" style={styles.itemIcon}>🔔</span> Notifications
                     </div>
                     
@@ -160,253 +236,308 @@ const Profile = ({ navigateToHome, navigateToLogin, setScreen, favoriteOrders, s
 
 // --- STYLES ---
 const styles = {
-    // Wrapper to center content and push it to the bottom
-    pageWrapper: {
-        width: "100vw",
-        height: "100vh",
-        backgroundColor: "#f0f0f0", 
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: 20,
-        fontFamily: "Arial",
-        justifyContent: 'flex-end', 
-        paddingBottom: '50px', 
-    },
+    // Wrapper to center content and push it to the bottom
+    pageWrapper: {
+        width: "100vw",
+        height: "100vh",
+        backgroundColor: "#f0f0f0", 
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: 20,
+        fontFamily: "Arial",
+        justifyContent: 'flex-end', 
+        paddingBottom: '50px', 
+    },
 
-    // Shared Card Container
-    profileContainer: {
-        padding: '20px',
-        maxWidth: '400px',
-        margin: 'auto',
-        backgroundColor: 'white',
-        borderRadius: '15px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-        color: '#333',
-        marginTop: '40px',
-        minHeight: '700px', 
-        display: 'flex', 
-        flexDirection: 'column', 
-        justifyContent: 'space-between', 
-    },
+    // Shared Card Container
+    profileContainer: {
+        padding: '20px',
+        maxWidth: '400px',
+        margin: 'auto',
+        backgroundColor: 'white',
+        borderRadius: '15px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+        color: '#333',
+        marginTop: '40px',
+        minHeight: '700px', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        justifyContent: 'space-between', 
+    },
 
-    // PROFILE PICTURE + CART ICON WRAPPER
-    picCartWrapper: {
-        position: 'relative',
-        width: 'fit-content',
-        height: 'fit-content',
-    },
-    
-    // Profile Header section
-    profileHeader: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start', // Align items to the top to respect position: absolute
-        marginBottom: '20px',
-    },
-    profileName: {
-        fontSize: '32px',
-        margin: 0,
-    },
-    profileStatus: {
-        margin: '5px 0 0 0',
-        fontSize: '14px',
-    },
-    profilePic: {
-        width: '80px',
-        height: '80px',
-        borderRadius: '50%',
-        objectFit: 'cover',
-    },
-    
-    // CART ICON STYLES
-    cartIconContainer: {
-        position: 'absolute', 
-        bottom: -5, // Adjust vertical position
-        right: -5, // Adjust horizontal position
-        padding: 0, // Removed padding here
-        width: 30,
-        height: 30,
-        backgroundColor: '#ffcc33',
-        color: '#030182',
-        border: '3px solid white', // White border for separation
-        borderRadius: '50%', // Circle shape
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        fontSize: 12,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-        zIndex: 10,
-    },
-    cartIcon: {
-        fontSize: 16,
-    },
-    cartBadge: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        backgroundColor: '#030182',
-        color: 'white',
-        borderRadius: '50%',
-        fontSize: 10,
-        padding: '2px 4px',
-        fontWeight: 'bold',
-        transform: 'translate(50%, -50%)', // Pull badge outside the circle
-        minWidth: '16px',
-        textAlign: 'center',
-        lineHeight: '12px',
-        height: '16px',
-    },
-    
-    // Feature Grid (Buttons)
-    featureGrid: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        marginBottom: '30px',
-    },
-    
-    walletButton: {
-        width: '30%',
-        padding: '15px',
-        borderRadius: '10px',
-        border: 'none',
-        color: 'white',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        backgroundColor: '#3366ff',
-    },
-    favoritesButton: {
-        width: '30%',
-        padding: '15px',
-        borderRadius: '10px',
-        border: 'none',
-        color: 'black',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        backgroundColor: '#ffcc33',
-    },
-    ordersButton: {
-        width: '30%',
-        padding: '15px',
-        borderRadius: '10px',
-        border: 'none',
-        color: 'white',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        backgroundColor: '#0033cc',
-    },
-    
-    // List Section
-    listSection: {
-        borderTop: '1px solid #ccc',
-        marginBottom: 'auto', 
-    },
-    listItem: {
-        padding: '15px 0',
-        borderBottom: '1px solid #eee',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        fontSize: '16px',
-    },
-    itemIcon: {
-        marginRight: '15px',
-    },
-    
-    // Back to Home Button Style
-    finalFooterWrapper: {
-        width: '100%',
-        marginTop: '30px',
-        paddingTop: '15px', 
-        borderTop: '1px solid #eee',
-    },
-    finalHomeButton: {
-        width: '100%',
-        padding: '12px',
-        backgroundColor: '#030182', 
-        color: 'white',
-        border: 'none',
-        borderRadius: '8px',
-        fontSize: '18px',
-        cursor: 'pointer',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    finalButtonArrow: {
-        marginRight: '10px',
-    },
-    
-    // Settings View Specific Styles
-    settingsContainer: {
-        padding: '20px',
-        backgroundColor: 'white',
-        minWidth: '360px',
-        margin: 'auto',
-        borderRadius: '15px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-        color: '#333',
-        marginTop: '40px',
-        minHeight: '700px',
-    },
-    settingsHeader: {
-        fontSize: '24px',
-        margin: '0 0 20px 0',
-        textAlign: 'center',
-    },
-    profileSummary: {
-        textAlign: 'center',
-        marginBottom: '30px',
-    },
-    profilePicLg: {
-        width: '100px',
-        height: '100px',
-        borderRadius: '50%',
-        objectFit: 'cover',
-    },
-    userName: {
-        marginTop: '10px',
-    },
-    userStatus: {
-        fontSize: '14px',
-    },
-    settingsList: {
-        borderTop: '1px solid #ccc',
-    },
-    deleteButton: {
-        padding: '15px 0',
-        borderBottom: '1px solid #eee',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        fontSize: '16px',
-        color: 'red',
-        fontWeight: 'bold',
-    },
-    settingsFooter: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        flexDirection: 'column',
-        alignItems: 'center',
-        marginTop: '30px',
-    },
-    backButton: {
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        fontSize: '16px',
-        color: '#030182',
-        fontWeight: '600',
-    },
-    signOutButton: {
-        background: 'none',
-        border: 'none',
-        color: 'red',
-        cursor: 'pointer',
-        fontSize: '16px',
-    }
+    // PROFILE PICTURE + CART ICON WRAPPER
+    picCartWrapper: {
+        position: 'relative',
+        width: 'fit-content',
+        height: 'fit-content',
+    },
+    
+    // Profile Header section
+    profileHeader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start', // Align items to the top to respect position: absolute
+        marginBottom: '20px',
+    },
+    profileName: {
+        fontSize: '32px',
+        margin: 0,
+    },
+    profileStatus: {
+        margin: '5px 0 0 0',
+        fontSize: '14px',
+    },
+    profilePic: {
+        width: '80px',
+        height: '80px',
+        borderRadius: '50%',
+        objectFit: 'cover',
+    },
+    
+    // CART ICON STYLES
+    cartIconContainer: {
+        position: 'absolute', 
+        bottom: -5, // Adjust vertical position
+        right: -5, // Adjust horizontal position
+        padding: 0, // Removed padding here
+        width: 30,
+        height: 30,
+        backgroundColor: '#ffcc33',
+        color: '#030182',
+        border: '3px solid white', // White border for separation
+        borderRadius: '50%', // Circle shape
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        fontSize: 12,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+        zIndex: 10,
+    },
+    cartIcon: {
+        fontSize: 16,
+    },
+    cartBadge: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        backgroundColor: '#030182',
+        color: 'white',
+        borderRadius: '50%',
+        fontSize: 10,
+        padding: '2px 4px',
+        fontWeight: 'bold',
+        transform: 'translate(50%, -50%)', // Pull badge outside the circle
+        minWidth: '16px',
+        textAlign: 'center',
+        lineHeight: '12px',
+        height: '16px',
+    },
+    
+    // Feature Grid (Buttons)
+    featureGrid: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginBottom: '30px',
+    },
+    
+    walletButton: {
+        width: '30%',
+        padding: '15px',
+        borderRadius: '10px',
+        border: 'none',
+        color: 'white',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        backgroundColor: '#3366ff',
+    },
+    favoritesButton: {
+        width: '30%',
+        padding: '15px',
+        borderRadius: '10px',
+        border: 'none',
+        color: 'black',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        backgroundColor: '#ffcc33',
+    },
+    ordersButton: {
+        width: '30%',
+        padding: '15px',
+        borderRadius: '10px',
+        border: 'none',
+        color: 'white',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        backgroundColor: '#0033cc',
+    },
+    
+    // List Section
+    listSection: {
+        borderTop: '1px solid #ccc',
+        marginBottom: 'auto', 
+    },
+    listItem: {
+        padding: '15px 0',
+        borderBottom: '1px solid #eee',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        fontSize: '16px',
+    },
+    itemIcon: {
+        marginRight: '15px',
+    },
+    
+    // Back to Home Button Style
+    finalFooterWrapper: {
+        width: '100%',
+        marginTop: '30px',
+        paddingTop: '15px', 
+        borderTop: '1px solid #eee',
+    },
+    finalHomeButton: {
+        width: '100%',
+        padding: '12px',
+        backgroundColor: '#030182', 
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        fontSize: '18px',
+        cursor: 'pointer',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    finalButtonArrow: {
+        marginRight: '10px',
+    },
+    
+    // Settings View Specific Styles
+    settingsContainer: {
+        padding: '20px',
+        backgroundColor: 'white',
+        minWidth: '360px',
+        margin: 'auto',
+        borderRadius: '15px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+        color: '#333',
+        marginTop: '40px',
+        minHeight: '700px',
+    },
+    settingsHeader: {
+        fontSize: '24px',
+        margin: '0 0 20px 0',
+        textAlign: 'center',
+    },
+    profileSummary: {
+        textAlign: 'center',
+        marginBottom: '30px',
+    },
+    profilePicLg: {
+        width: '100px',
+        height: '100px',
+        borderRadius: '50%',
+        objectFit: 'cover',
+    },
+    userName: {
+        marginTop: '10px',
+    },
+    userStatus: {
+        fontSize: '14px',
+    },
+    settingsList: {
+        borderTop: '1px solid #ccc',
+    },
+    deleteButton: {
+        padding: '15px 0',
+        borderBottom: '1px solid #eee',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        fontSize: '16px',
+        color: 'red',
+        fontWeight: 'bold',
+    },
+    adminDeleteButton: { // Style for simulated admin ban
+        padding: '15px 0',
+        borderBottom: '1px solid #eee',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        fontSize: '16px',
+        color: '#DC3545',
+        fontWeight: 'bold',
+    },
+    adminButton: { // Style for simulated admin verification
+        padding: '15px 0',
+        borderBottom: '1px solid #eee',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        fontSize: '16px',
+        color: '#4CAF50',
+        fontWeight: 'bold',
+    },
+    settingsFooter: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        flexDirection: 'column',
+        alignItems: 'center',
+        marginTop: '30px',
+    },
+    backButton: {
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        fontSize: '16px',
+        color: '#030182',
+        fontWeight: '600',
+    },
+    // New styles for courier section on main profile view
+    courierSection: {
+        border: '1px solid #0033cc',
+        padding: '15px',
+        borderRadius: '10px',
+        marginBottom: '20px',
+        backgroundColor: '#e6f0ff',
+    },
+    courierHeader: {
+        fontSize: '18px',
+        color: '#0033cc',
+        marginTop: 0,
+        marginBottom: '10px',
+    },
+    deliveryHistoryButton: {
+        width: '100%',
+        padding: '10px',
+        backgroundColor: '#ffcc33',
+        color: '#333',
+        border: 'none',
+        borderRadius: '8px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        marginBottom: '10px',
+    },
+    jobOfferButton: {
+        width: '100%',
+        padding: '10px',
+        backgroundColor: '#030182',
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+    },
+    signOutButton: {
+        background: 'none',
+        border: 'none',
+        color: 'red',
+        cursor: 'pointer',
+        fontSize: '16px',
+    }
 };
 
 export default Profile;
