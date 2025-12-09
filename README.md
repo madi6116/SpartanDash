@@ -1,16 +1,115 @@
-# React + Vite
+# SpartanDash
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Prerequisites
 
-Currently, two official plugins are available:
+Before running the project, install the following on your computer:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Git
+- Node.js (required for the backend)
+- npm (included with Node.js)
 
-## React Compiler
+Verify installation:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+git --version
+node -v
+npm -v
+```
 
-## Expanding the ESLint configuration
+## Clone the Repository
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+git clone https://github.com/madi6116/SpartanDash.git
+cd SpartanDash
+```
+
+## Install Dependencies
+
+### Install root dependencies
+
+```bash
+npm install
+```
+
+### Install backend dependencies
+
+```bash
+cd backend
+npm install
+```
+
+### Install frontend dependencies
+
+Open a new terminal or navigate back to the project root manually, then run:
+
+```bash
+cd SpartanDash/frontend
+npm install
+```
+
+## Building the Project
+
+### Build the Backend
+
+The backend requires Node.js to be installed on the system.  
+Build the backend by running:
+
+```bash
+cd backend
+npm run build
+```
+
+(If your backend uses a different build script, replace the command accordingly.)
+
+### Build the Frontend
+
+```bash
+cd frontend
+npm run build
+```
+
+The output will be placed in the build folder defined by the frontend configuration.
+
+## Running the Project
+
+### Run the Backend
+
+Start the backend server with Node:
+
+```bash
+cd backend
+node app.js
+```
+
+Keep this terminal open.
+
+### Run the Frontend
+
+Open a second terminal and navigate to the frontend folder:
+
+```bash
+cd SpartanDash/frontend
+npm start
+```
+
+The frontend will start at the address shown in the terminal.
+
+## Project Structure
+
+```
+SpartanDash/
+├── backend/
+│   ├── app.js
+│   ├── package.json
+│   ├── package-lock.json
+│   └── backend source files
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   ├── package-lock.json
+│   └── build output after running build
+├── package.json
+├── package-lock.json
+└── README.md
+```
